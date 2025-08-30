@@ -13,15 +13,20 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
+# 👉 DIS-MOI SI TON DOSSIER N'A PAS CE NOM !
+# Si ton repo contient un dossier "boolean-boost-main" avec package.json, src, etc.,
+# on se place dedans pour installer, builder et uploader.
+defaults:
+  run:
+    working-directory: ./boolean-boost-main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -31,13 +36,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Debug : liste le contenu du build
       - name: Show dist content
         run: |
           echo "=== DIST CONTENT ==="
           ls -la dist || true
 
-      # SPA fallback + éviter Jekyll
+      # SPA fallback + empêcher Jekyll d’ignorer des fichiers
       - name: Add 404.html + .nojekyll
         run: |
           cp dist/index.html dist/404.html
@@ -46,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./boolean-boost-main/dist   # 👈 le dist du SOUS-DOSSIER
 
   deploy:
     needs: build
@@ -55,6 +59,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
