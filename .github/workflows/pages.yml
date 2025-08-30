@@ -31,10 +31,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      # SPA fallback: évite les 404 sur les routes React/Vite
-      - name: SPA fallback (copy index.html to 404.html)
+      - name: Show dist content
         run: |
-          cp dist/index.html dist/404.html || true
+          echo "=== DIST CONTENT ==="
+          ls -la dist || true
+          test -f dist/index.html || (echo "❌ index.html manquant dans dist" && exit 1)
+
+      - name: SPA fallback (copy index.html to 404.html)
+        run: cp dist/index.html dist/404.html
+
+      - name: Disable Jekyll
+        run: touch dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
