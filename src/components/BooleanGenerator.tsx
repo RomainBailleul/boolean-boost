@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Copy, Check, Search, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import jobTitlesData from '@/data/jobTitles.json';
+import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
+import { generateBooleanQuery } from '@/utils/queryGenerator';
+import { useJobTitleSuggestions } from '@/hooks/useJobTitleSuggestions';
 
 const BooleanGenerator = () => {
   const [inputValue, setInputValue] = useState('');
@@ -18,39 +20,17 @@ const BooleanGenerator = () => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  // Suggestions basées sur l'input
-  const suggestions = useMemo(() => {
-    if (!inputValue.trim()) return [];
-    
-    const allTitles = Object.values(jobTitlesData).flat();
-    const filtered = allTitles.filter(title => 
-      title.toLowerCase().includes(inputValue.toLowerCase())
-    ).slice(0, 10);
-    
-    return filtered;
-  }, [inputValue]);
+  // Suggestions basées sur l'input avec algorithme amélioré
+  const suggestions = useJobTitleSuggestions(inputValue, enhancedJobTitlesData, 10);
 
-  // Génération de la requête boolean
-  const generateBooleanQuery = () => {
-    let titles: string[] = [];
-    
-    if (mode === 'free') {
-      titles = [inputValue, ...customTitles].filter(Boolean);
-      
-      // Ajouter les suggestions sélectionnées
-      titles = [...titles, ...selectedTitles];
-    } else {
-      if (selectedCategory) {
-        titles = jobTitlesData[selectedCategory as keyof typeof jobTitlesData] || [];
-      }
-    }
-    
-    if (titles.length === 0) return '';
-    
-    return titles.map(title => `"${title}"`).join(' OR ');
-  };
-
-  const booleanQuery = generateBooleanQuery();
+  // Génération de la requête boolean avec la nouvelle logique
+  const booleanQuery = generateBooleanQuery(enhancedJobTitlesData, {
+    mode,
+    inputValue,
+    selectedCategory,
+    selectedTitles,
+    customTitles
+  });
 
   const copyToClipboard = async () => {
     if (!booleanQuery) return;
@@ -211,7 +191,7 @@ const BooleanGenerator = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {Object.keys(jobTitlesData).map((category) => (
+                {Object.keys(enhancedJobTitlesData).map((category) => (
                   <Button
                     key={category}
                     variant={selectedCategory === category ? 'default' : 'outline'}
@@ -221,7 +201,7 @@ const BooleanGenerator = () => {
                     <div>
                       <div className="font-semibold capitalize">{category}</div>
                       <div className="text-sm opacity-70">
-                        {jobTitlesData[category as keyof typeof jobTitlesData].length} titres
+                        {enhancedJobTitlesData[category as keyof typeof enhancedJobTitlesData].length} titres
                       </div>
                     </div>
                   </Button>
