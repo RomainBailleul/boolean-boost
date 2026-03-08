@@ -1,5 +1,5 @@
 # Sprint Backlog — Boolean Boost
-Généré le : 2026-03-08 (v2)
+Généré le : 2026-03-08 (v3)
 
 ## 🔴 P0 — Bloquant
 - [x] P0-01 | BooleanGenerator.tsx | Fix generateBooleanQuery: passer customTitles et inputValue réels
@@ -26,3 +26,30 @@ Généré le : 2026-03-08 (v2)
 - [x] P2-10 | useJobTitleSuggestions.ts | Mémoiser le flat array des titres
 - [x] P2-11 | StepResult.tsx | Bloquer Enter sur save si requête vide
 - [x] P2-06 | index.html | Remplacer OG image par une image branded
+
+## Sprint P3 — Polish & Power Features (2026-03-08)
+
+### ✅ Complétés
+- [x] P3-01 | Auth + Cloud | Authentification email/password + table saved_queries avec RLS
+- [x] P3-02 | StepSelect.tsx | Preview live de la requête avec compteur caractères
+- [x] P3-03 | Multi-catégories | Sélection multiple de familles métier
+- [x] P3-04 | Mobile polish | Touch targets 44px, sticky buttons, responsive
+- [x] P3-05 | Raccourcis clavier | Ctrl+Enter, Escape, Ctrl+C
+- [x] P3-06 | Dashboard | Page /dashboard avec stats, graphiques recharts, tracking usage_events
+
+## Sprint P4 — Post-audit (issu de l'audit du 2026-03-08)
+
+### 🔴 P0 — Bloquant
+- [x] P0-01 | Performance | useDashboardStats.ts | Pagination + try/catch + error state
+- [x] P0-02 | Performance | migrations | Index sur usage_events(created_at, user_id)
+
+### 🟠 P1 — Important
+- [x] P1-01 | Sécurité | migrations | Validation INSERT policy usage_events
+- [x] P1-02 | Code Quality | useUsageTracking + useDashboardStats | Supprimer as any
+- [x] P1-03 | Documentation | memory.md + sprint-backlog.md + security-backlog.md | MAJ
+
+### 🟡 P2 — Amélioration
+- [ ] P2-01 | Tests | useAuth, useKeyboardShortcuts, useDashboardStats | Tests unitaires
+- [ ] P2-02 | Tests | useSavedQueries | Tests mode cloud
+- [x] P2-03 | Performance | App.tsx | Lazy-load Dashboard
+- [x] P2-04 | UX | useDashboardStats | Fix dépendance user → user?.id
