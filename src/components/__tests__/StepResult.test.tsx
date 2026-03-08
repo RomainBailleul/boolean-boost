@@ -59,10 +59,16 @@ describe("StepResult", () => {
 
   it("should call clipboard writeText on copy click", async () => {
     const user = userEvent.setup();
-    writeTextMock.mockClear();
+    const spy = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: spy },
+      writable: true,
+      configurable: true,
+    });
     renderWithProviders(<StepResult {...defaultProps} />);
     await user.click(screen.getByRole("button", { name: /copier la requête/i }));
-    expect(writeTextMock).toHaveBeenCalledWith(defaultProps.booleanQuery);
+    await screen.findByText("Copié !");
+    expect(spy).toHaveBeenCalledWith(defaultProps.booleanQuery);
   });
 
   // ─── Save section ──────────────────────────────────────────
