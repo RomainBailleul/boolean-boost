@@ -41,6 +41,38 @@ const StepResult: React.FC<StepResultProps> = ({
     setTimeout(() => setJustSaved(false), 2000);
   };
 
+  const exportQueries = (format: 'csv' | 'txt') => {
+    if (savedQueries.length === 0) return;
+    let content: string;
+    let mimeType: string;
+    let ext: string;
+
+    if (format === 'csv') {
+      const header = 'Nom,Titres,Date,Requête';
+      const rows = savedQueries.map(q =>
+        `"${q.label.replace(/"/g, '""')}",${q.titlesCount},"${new Date(q.createdAt).toLocaleDateString('fr-FR')}","${q.query.replace(/"/g, '""')}"`
+      );
+      content = [header, ...rows].join('\n');
+      mimeType = 'text/csv;charset=utf-8';
+      ext = 'csv';
+    } else {
+      content = savedQueries.map((q, i) =>
+        `--- Requête ${i + 1}: ${q.label} ---\nTitres: ${q.titlesCount} | Date: ${new Date(q.createdAt).toLocaleDateString('fr-FR')}\n\n${q.query}\n`
+      ).join('\n');
+      mimeType = 'text/plain;charset=utf-8';
+      ext = 'txt';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `boolean-boost-requetes.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exporté !", description: `Fichier .${ext} téléchargé.` });
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Result card */}
