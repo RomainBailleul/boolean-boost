@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Copy, Check, RotateCcw, Linkedin, Bookmark, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, RotateCcw, Linkedin, Bookmark, Trash2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 
@@ -39,6 +39,38 @@ const StepResult: React.FC<StepResultProps> = ({
     setJustSaved(true);
     toast({ title: "Sauvegardée !", description: "Requête enregistrée localement." });
     setTimeout(() => setJustSaved(false), 2000);
+  };
+
+  const exportQueries = (format: 'csv' | 'txt') => {
+    if (savedQueries.length === 0) return;
+    let content: string;
+    let mimeType: string;
+    let ext: string;
+
+    if (format === 'csv') {
+      const header = 'Nom,Titres,Date,Requête';
+      const rows = savedQueries.map(q =>
+        `"${q.label.replace(/"/g, '""')}",${q.titlesCount},"${new Date(q.createdAt).toLocaleDateString('fr-FR')}","${q.query.replace(/"/g, '""')}"`
+      );
+      content = [header, ...rows].join('\n');
+      mimeType = 'text/csv;charset=utf-8';
+      ext = 'csv';
+    } else {
+      content = savedQueries.map((q, i) =>
+        `--- Requête ${i + 1}: ${q.label} ---\nTitres: ${q.titlesCount} | Date: ${new Date(q.createdAt).toLocaleDateString('fr-FR')}\n\n${q.query}\n`
+      ).join('\n');
+      mimeType = 'text/plain;charset=utf-8';
+      ext = 'txt';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `boolean-boost-requetes.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exporté !", description: `Fichier .${ext} téléchargé.` });
   };
 
   return (
@@ -107,9 +139,33 @@ const StepResult: React.FC<StepResultProps> = ({
       {/* Saved queries */}
       {savedQueries.length > 0 && (
         <div className="glass-card rounded-xl p-4 sm:p-5">
-          <h3 className="text-sm font-bold text-foreground mb-3">
-            Requêtes sauvegardées ({savedQueries.length})
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-foreground">
+              Requêtes sauvegardées ({savedQueries.length})
+            </h3>
+            <div className="flex gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('csv')}
+                title="Exporter en CSV"
+              >
+                <Download className="w-3 h-3 mr-1" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('txt')}
+                title="Exporter en TXT"
+              >
+                <Download className="w-3 h-3 mr-1" />
+                TXT
+              </Button>
+            </div>
+          </div>
           <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {savedQueries.map((sq) => (
               <div
