@@ -1,1 +1,4 @@
 project_id = "bhcopcurpzjieeyaireb"
+
+[functions.parse-natural-query]
+verify_jwt = false
