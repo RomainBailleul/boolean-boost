@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap } from 'lucide-react';
+import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
