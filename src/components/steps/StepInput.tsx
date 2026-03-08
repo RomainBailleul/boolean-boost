@@ -33,6 +33,7 @@ const StepInput: React.FC<StepInputProps> = ({
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
           onClick={() => setMode('free')}
+          aria-pressed={mode === 'free'}
           className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
             mode === 'free'
               ? 'ring-2 ring-primary border-primary/40'
