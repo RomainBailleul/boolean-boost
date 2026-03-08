@@ -160,7 +160,12 @@ describe("BooleanGenerator", () => {
 
   it("should copy boolean query to clipboard from step 3", async () => {
     const user = userEvent.setup();
-    writeTextMock.mockClear();
+    const spy = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: spy },
+      writable: true,
+      configurable: true,
+    });
     renderWithProviders(<BooleanGenerator />);
 
     // Navigate to step 3
