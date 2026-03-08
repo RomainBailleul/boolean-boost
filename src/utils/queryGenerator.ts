@@ -8,6 +8,7 @@ export interface QueryOptions {
   mode: 'free' | 'category';
   inputValue?: string;
   selectedCategory?: string;
+  selectedCategories?: string[];
   selectedTitles?: string[];
   customTitles?: string[];
   exclusions?: string[];
@@ -39,8 +40,13 @@ export const generateBooleanQuery = (
       .forEach(t => uniqueTitles.add(t));
     titles = Array.from(uniqueTitles);
   } else {
-    if (options.selectedCategory && jobTitlesData[options.selectedCategory]) {
-      titles = jobTitlesData[options.selectedCategory];
+    const cats = options.selectedCategories?.length
+      ? options.selectedCategories
+      : options.selectedCategory ? [options.selectedCategory] : [];
+    const seen = new Set<string>();
+    for (const cat of cats) {
+      const catTitles = jobTitlesData[cat];
+      if (catTitles) catTitles.forEach(t => { if (!seen.has(t)) { seen.add(t); titles.push(t); } });
     }
   }
   

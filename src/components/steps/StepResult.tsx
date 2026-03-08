@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
 import { fireConfetti } from '@/utils/confetti';
+import type { User } from '@supabase/supabase-js';
 
 interface StepResultProps {
   booleanQuery: string;
@@ -19,6 +20,8 @@ interface StepResultProps {
   shareUrl: string;
   onBack: () => void;
   onReset: () => void;
+  user?: User | null;
+  copyRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 const PLATFORM_OPTIONS: { value: Platform; icon: React.ReactNode; label: string }[] = [
@@ -28,24 +31,21 @@ const PLATFORM_OPTIONS: { value: Platform; icon: React.ReactNode; label: string 
 ];
 
 const StepResult: React.FC<StepResultProps> = ({
-  booleanQuery, selectedCount, platform, setPlatform, location, setLocation, shareUrl, onBack, onReset,
+  booleanQuery, selectedCount, platform, setPlatform, location, setLocation, shareUrl, onBack, onReset, user, copyRef,
 }) => {
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [saveLabel, setSaveLabel] = useState('');
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
-  const { savedQueries, saveQuery, deleteQuery } = useSavedQueries();
+  const { savedQueries, saveQuery, deleteQuery } = useSavedQueries(user);
   const queryCardRef = useRef<HTMLDivElement>(null);
 
   const exportAsPng = useCallback(async () => {
     if (!queryCardRef.current) return;
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(queryCardRef.current, {
-        backgroundColor: null,
-        scale: 2,
-      });
+      const canvas = await html2canvas(queryCardRef.current, { backgroundColor: null, scale: 2 });
       const link = document.createElement('a');
       link.download = 'boolean-boost-query.png';
       link.href = canvas.toDataURL('image/png');
@@ -77,7 +77,7 @@ const StepResult: React.FC<StepResultProps> = ({
   const isOverLimit = queryLength > limit.limit;
   const isNearLimit = queryLength > limit.limit * 0.85 && !isOverLimit;
 
-  const copyToClipboard = async (text?: string) => {
+  const copyToClipboard = useCallback(async (text?: string) => {
     try {
       await navigator.clipboard.writeText(text || booleanQuery);
       setCopied(true);
@@ -87,13 +87,19 @@ const StepResult: React.FC<StepResultProps> = ({
     } catch {
       toast({ title: "Erreur", description: "Impossible de copier.", variant: "destructive" });
     }
-  };
+  }, [booleanQuery, toast]);
 
-  const handleSave = () => {
-    saveQuery(saveLabel, booleanQuery, selectedCount);
+  // Expose copy to parent via ref (for keyboard shortcuts)
+  useEffect(() => {
+    if (copyRef) copyRef.current = () => copyToClipboard();
+    return () => { if (copyRef) copyRef.current = null; };
+  }, [copyRef, copyToClipboard]);
+
+  const handleSave = async () => {
+    await saveQuery(saveLabel, booleanQuery, selectedCount, platform, location);
     setSaveLabel('');
     setJustSaved(true);
-    toast({ title: "Sauvegardée !", description: "Requête enregistrée localement." });
+    toast({ title: "Sauvegardée !", description: user ? "Requête enregistrée dans le cloud." : "Requête enregistrée localement." });
     setTimeout(() => setJustSaved(false), 2000);
   };
 
@@ -140,7 +146,7 @@ const StepResult: React.FC<StepResultProps> = ({
               key={opt.value}
               onClick={() => setPlatform(opt.value)}
               aria-pressed={platform === opt.value}
-              className={`rounded-lg border p-2.5 sm:p-3 text-center transition-all text-xs sm:text-sm font-medium ${
+              className={`rounded-lg border p-2.5 sm:p-3 text-center transition-all text-xs sm:text-sm font-medium min-h-[44px] ${
                 platform === opt.value
                   ? 'border-primary bg-primary/8 ring-2 ring-primary/25 text-foreground'
                   : 'border-border bg-card text-muted-foreground hover:border-primary/30'
@@ -194,7 +200,6 @@ const StepResult: React.FC<StepResultProps> = ({
           </div>
         </div>
 
-        {/* Character limit warnings */}
         {isOverLimit && (
           <Alert className="mb-4 border-destructive/50 bg-destructive/5">
             <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -215,7 +220,7 @@ const StepResult: React.FC<StepResultProps> = ({
         <Textarea
           value={booleanQuery}
           readOnly
-          className="font-mono text-xs sm:text-sm min-h-[120px] sm:min-h-[150px] bg-background/60 border-border rounded-lg resize-none"
+          className="font-mono text-xs sm:text-sm min-h-[120px] sm:min-h-[150px] bg-background/60 border-border rounded-lg resize-none break-all"
         />
 
         <Button
@@ -276,6 +281,7 @@ const StepResult: React.FC<StepResultProps> = ({
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
           <Bookmark className="w-4 h-4 text-primary" />
           Sauvegarder cette requête
+          {user && <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">☁️ cloud</span>}
         </h3>
         <div className="flex gap-2">
           <Input
@@ -304,56 +310,34 @@ const StepResult: React.FC<StepResultProps> = ({
               Requêtes sauvegardées ({savedQueries.length})
             </h3>
             <div className="flex gap-1.5">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 rounded-md text-[11px] px-2.5"
-                onClick={() => exportQueries('csv')}
-                title="Exporter en CSV"
-              >
-                <Download className="w-3 h-3 mr-1" />
-                CSV
+              <Button variant="outline" size="sm" className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('csv')} title="Exporter en CSV">
+                <Download className="w-3 h-3 mr-1" /> CSV
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 rounded-md text-[11px] px-2.5"
-                onClick={() => exportQueries('txt')}
-                title="Exporter en TXT"
-              >
-                <Download className="w-3 h-3 mr-1" />
-                TXT
+              <Button variant="outline" size="sm" className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('txt')} title="Exporter en TXT">
+                <Download className="w-3 h-3 mr-1" /> TXT
               </Button>
             </div>
           </div>
           <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {savedQueries.map((sq) => (
-              <div
-                key={sq.id}
-                className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-background/50 hover:bg-background/80 transition-colors group"
-              >
+              <div key={sq.id}
+                className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-background/50 hover:bg-background/80 transition-colors group">
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground truncate">{sq.label}</div>
                   <div className="text-[10px] text-muted-foreground">
                     {sq.titlesCount} titres · {new Date(sq.createdAt).toLocaleDateString('fr-FR')}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <Button variant="ghost" size="sm"
                   className="h-7 w-7 p-0 rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                  onClick={() => copyToClipboard(sq.query)}
-                  title="Copier"
-                >
+                  onClick={() => copyToClipboard(sq.query)} title="Copier">
                   <Copy className="w-3.5 h-3.5" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <Button variant="ghost" size="sm"
                   className="h-7 w-7 p-0 rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-                  onClick={() => deleteQuery(sq.id)}
-                  title="Supprimer"
-                >
+                  onClick={() => deleteQuery(sq.id)} title="Supprimer">
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
@@ -362,7 +346,8 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       )}
 
-      <div className="flex justify-between gap-3">
+      {/* Navigation - sticky on mobile */}
+      <div className="flex justify-between gap-3 sticky bottom-4 z-10 sm:static sm:z-auto bg-background/80 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none p-2 -mx-2 sm:p-0 sm:mx-0 rounded-xl sm:rounded-none">
         <Button variant="outline" onClick={onBack} size="lg" className="rounded-xl h-11 sm:h-12 px-5">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Modifier

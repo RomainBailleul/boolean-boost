@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Briefcase, ArrowRight, Wand2, Loader2 } from 'lucide-react';
+import { Search, Briefcase, ArrowRight, Wand2, Loader2, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,8 +22,8 @@ interface StepInputProps {
   setMode: (mode: 'free' | 'category') => void;
   inputValue: string;
   setInputValue: (value: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
+  selectedCategories: string[];
+  setSelectedCategories: (categories: string[]) => void;
   onNext: () => void;
   onNlpResult?: (result: NlpResult) => void;
 }
@@ -36,13 +36,21 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const StepInput: React.FC<StepInputProps> = ({
   mode, setMode, inputValue, setInputValue,
-  selectedCategory, setSelectedCategory, onNext, onNlpResult,
+  selectedCategories, setSelectedCategories, onNext, onNlpResult,
 }) => {
   const [nlpInput, setNlpInput] = useState('');
   const [nlpLoading, setNlpLoading] = useState(false);
   const { toast } = useToast();
 
-  const canProceed = mode === 'free' ? inputValue.trim().length > 0 : selectedCategory.length > 0;
+  const canProceed = mode === 'free' ? inputValue.trim().length > 0 : selectedCategories.length > 0;
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(
+      selectedCategories.includes(category)
+        ? selectedCategories.filter(c => c !== category)
+        : [...selectedCategories, category]
+    );
+  };
 
   const handleNlp = async () => {
     if (!nlpInput.trim()) return;
@@ -56,7 +64,6 @@ const StepInput: React.FC<StepInputProps> = ({
         toast({ title: 'Erreur IA', description: data.error, variant: 'destructive' });
         return;
       }
-      // Apply parsed result
       if (data.jobTitle) {
         setInputValue(data.jobTitle);
         setMode('free');
@@ -65,7 +72,6 @@ const StepInput: React.FC<StepInputProps> = ({
         onNlpResult(data as NlpResult);
       }
       toast({ title: '✨ Analyse terminée', description: `Poste détecté : ${data.jobTitle || 'non identifié'}` });
-      // Auto-proceed to step 2
       if (data.jobTitle) {
         setTimeout(() => onNext(), 300);
       }
@@ -113,7 +119,6 @@ const StepInput: React.FC<StepInputProps> = ({
           )}
         </Button>
 
-        {/* Skeleton loader during NLP analysis */}
         {nlpLoading && (
           <div className="mt-4 space-y-3 animate-fade-in">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -204,32 +209,48 @@ const StepInput: React.FC<StepInputProps> = ({
         </div>
       ) : (
         <div className="glass-card rounded-xl p-4 sm:p-6">
-          <h2 className="text-base sm:text-lg font-bold text-foreground mb-3">
-            Choisissez une famille métier
+          <h2 className="text-base sm:text-lg font-bold text-foreground mb-1">
+            Choisissez une ou plusieurs familles métier
           </h2>
+          <p className="text-[11px] text-muted-foreground mb-3">
+            Combinez plusieurs catégories pour élargir la recherche
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-            {Object.keys(enhancedJobTitlesData).map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                aria-pressed={selectedCategory === category}
-                aria-label={`Catégorie ${category.replace('_', ' ')}`}
-                className={`rounded-lg border p-3 sm:p-4 text-left transition-all hover:shadow-md ${
-                  selectedCategory === category
-                    ? 'border-primary bg-primary/8 ring-2 ring-primary/25 shadow-md'
-                    : 'border-border bg-card hover:border-primary/30'
-                }`}
-              >
-                <span className="text-lg sm:text-xl">{CATEGORY_ICONS[category] || '📁'}</span>
-                <div className="font-semibold capitalize text-card-foreground text-xs sm:text-sm mt-1 leading-tight">
-                  {category.replace('_', ' ')}
-                </div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                  {enhancedJobTitlesData[category as keyof typeof enhancedJobTitlesData].length} titres
-                </div>
-              </button>
-            ))}
+            {Object.keys(enhancedJobTitlesData).map((category) => {
+              const isSelected = selectedCategories.includes(category);
+              return (
+                <button
+                  key={category}
+                  onClick={() => toggleCategory(category)}
+                  aria-pressed={isSelected}
+                  aria-label={`Catégorie ${category.replace('_', ' ')}`}
+                  className={`rounded-lg border p-3 sm:p-4 text-left transition-all hover:shadow-md relative ${
+                    isSelected
+                      ? 'border-primary bg-primary/8 ring-2 ring-primary/25 shadow-md'
+                      : 'border-border bg-card hover:border-primary/30'
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-3 h-3 text-primary-foreground" />
+                    </div>
+                  )}
+                  <span className="text-lg sm:text-xl">{CATEGORY_ICONS[category] || '📁'}</span>
+                  <div className="font-semibold capitalize text-card-foreground text-xs sm:text-sm mt-1 leading-tight">
+                    {category.replace('_', ' ')}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                    {enhancedJobTitlesData[category as keyof typeof enhancedJobTitlesData].length} titres
+                  </div>
+                </button>
+              );
+            })}
           </div>
+          {selectedCategories.length > 0 && (
+            <p className="text-xs text-primary font-medium mt-3">
+              {selectedCategories.length} catégorie{selectedCategories.length > 1 ? 's' : ''} sélectionnée{selectedCategories.length > 1 ? 's' : ''}
+            </p>
+          )}
         </div>
       )}
 

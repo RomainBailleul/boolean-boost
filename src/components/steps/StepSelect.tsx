@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Plus, Sparkles, ShieldMinus, Target, UserCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, Sparkles, ShieldMinus, Target, UserCheck, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useJobTitleSuggestions } from '@/hooks/useJobTitleSuggestions';
 import { generateVariants } from '@/utils/variantGenerator';
+import { generateBooleanQuery, type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
 import type { Seniority } from '@/components/BooleanGenerator';
 
@@ -21,7 +23,7 @@ const SENIORITY_OPTIONS: { value: Seniority; label: string; emoji: string }[] = 
 interface StepSelectProps {
   mode: 'free' | 'category';
   inputValue: string;
-  selectedCategory: string;
+  selectedCategories: string[];
   selectedTitles: string[];
   setSelectedTitles: React.Dispatch<React.SetStateAction<string[]>>;
   customTitles: string[];
@@ -32,28 +34,43 @@ interface StepSelectProps {
   setSkills: React.Dispatch<React.SetStateAction<string[]>>;
   seniority: Seniority;
   setSeniority: (s: Seniority) => void;
+  platform: Platform;
+  location: string;
   onNext: () => void;
   onBack: () => void;
 }
 
 const StepSelect: React.FC<StepSelectProps> = ({
-  mode, inputValue, selectedCategory,
+  mode, inputValue, selectedCategories,
   selectedTitles, setSelectedTitles,
   customTitles, setCustomTitles,
   exclusions, setExclusions,
   skills, setSkills,
   seniority, setSeniority,
+  platform, location,
   onNext, onBack,
 }) => {
   const [customInput, setCustomInput] = React.useState('');
   const [exclusionInput, setExclusionInput] = React.useState('');
   const [skillInput, setSkillInput] = React.useState('');
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   const suggestions = useJobTitleSuggestions(inputValue, enhancedJobTitlesData, 20);
   const autoVariants = useMemo(() => generateVariants(inputValue), [inputValue]);
 
-  const categoryTitles = mode === 'category' && selectedCategory
-    ? enhancedJobTitlesData[selectedCategory as keyof typeof enhancedJobTitlesData] || []
-    : [];
+  // Multi-category: merge titles from all selected categories
+  const categoryTitles = useMemo(() => {
+    if (mode !== 'category' || selectedCategories.length === 0) return [];
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const cat of selectedCategories) {
+      const titles = enhancedJobTitlesData[cat as keyof typeof enhancedJobTitlesData] || [];
+      for (const t of titles) {
+        if (!seen.has(t)) { seen.add(t); result.push(t); }
+      }
+    }
+    return result;
+  }, [mode, selectedCategories]);
 
   // Filter by seniority
   const seniorityFilter = useMemo(() => {
@@ -143,6 +160,19 @@ const StepSelect: React.FC<StepSelectProps> = ({
     mode === 'free' ? suggestions.filter(t => !autoVariants.includes(t)) : categoryTitles
   );
 
+  // Live query preview
+  const previewQuery = useMemo(() => {
+    return generateBooleanQuery(enhancedJobTitlesData, {
+      mode, inputValue, selectedCategory: selectedCategories[0] || '',
+      selectedCategories,
+      selectedTitles, customTitles,
+      exclusions, skills, platform, location,
+    });
+  }, [mode, inputValue, selectedCategories, selectedTitles, customTitles, exclusions, skills, platform, location]);
+
+  const previewLimit = PLATFORM_LIMITS[platform];
+  const previewLen = previewQuery.length;
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Seniority filter */}
@@ -156,7 +186,7 @@ const StepSelect: React.FC<StepSelectProps> = ({
             <button
               key={opt.value}
               onClick={() => setSeniority(opt.value)}
-              className={`rounded-lg border px-3 py-1.5 text-xs sm:text-sm font-medium transition-all ${
+              className={`rounded-lg border px-3 py-2 min-h-[44px] sm:min-h-0 sm:py-1.5 text-xs sm:text-sm font-medium transition-all ${
                 seniority === opt.value
                   ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary/25'
                   : 'border-border bg-card text-muted-foreground hover:border-primary/30'
@@ -185,9 +215,9 @@ const StepSelect: React.FC<StepSelectProps> = ({
           </p>
           <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {autoVariants.map((title) => (
-            <Badge key={`auto-${title}`}
+              <Badge key={`auto-${title}`}
                 variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-                className={`cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg transition-all duration-200 hover:shadow-sm ${
+                className={`cursor-pointer text-xs sm:text-sm py-2 sm:py-1.5 px-3 sm:px-3 min-h-[44px] sm:min-h-0 rounded-lg transition-all duration-200 hover:shadow-sm ${
                   selectedTitles.includes(title)
                     ? 'hover:scale-105 active:scale-95'
                     : 'hover:scale-105 active:scale-95 hover:border-primary/40'
@@ -221,7 +251,7 @@ const StepSelect: React.FC<StepSelectProps> = ({
         <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-[250px] sm:max-h-[300px] overflow-y-auto p-1 -m-1">
           {filteredSuggestions.map((title) => (
             <Badge key={title} variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-              className={`cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg transition-all duration-200 hover:shadow-sm ${
+              className={`cursor-pointer text-xs sm:text-sm py-2 sm:py-1.5 px-3 sm:px-3 min-h-[44px] sm:min-h-0 rounded-lg transition-all duration-200 hover:shadow-sm ${
                 selectedTitles.includes(title)
                   ? 'hover:scale-105 active:scale-95'
                   : 'hover:scale-105 active:scale-95 hover:border-primary/40'
@@ -233,7 +263,7 @@ const StepSelect: React.FC<StepSelectProps> = ({
           ))}
           {customTitles.filter(t => !availableTitles.includes(t)).map((title) => (
             <Badge key={`custom-${title}`} variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-              className={`cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg border-dashed transition-all duration-200 hover:shadow-sm ${
+              className={`cursor-pointer text-xs sm:text-sm py-2 sm:py-1.5 px-3 sm:px-3 min-h-[44px] sm:min-h-0 rounded-lg border-dashed transition-all duration-200 hover:shadow-sm ${
                 selectedTitles.includes(title)
                   ? 'hover:scale-105 active:scale-95'
                   : 'hover:scale-105 active:scale-95 hover:border-primary/40'
@@ -267,7 +297,7 @@ const StepSelect: React.FC<StepSelectProps> = ({
           <div className="flex flex-wrap gap-1.5 mb-3">
             {skills.map((skill) => (
               <Badge key={`skill-${skill}`} variant="default"
-                className="cursor-pointer text-xs py-1 px-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/80"
+                className="cursor-pointer text-xs py-2 sm:py-1 px-2.5 min-h-[44px] sm:min-h-0 rounded-lg bg-accent text-accent-foreground hover:bg-accent/80"
                 onClick={() => setSkills(prev => prev.filter(s => s !== skill))} aria-label={`Retirer ${skill}`}>
                 {skill} ×
               </Badge>
@@ -295,7 +325,7 @@ const StepSelect: React.FC<StepSelectProps> = ({
           <div className="flex flex-wrap gap-1.5 mb-3">
             {exclusions.map((exc) => (
               <Badge key={`exc-${exc}`} variant="outline"
-                className="cursor-pointer text-xs py-1 px-2.5 rounded-lg border-destructive/40 text-destructive hover:bg-destructive/10"
+                className="cursor-pointer text-xs py-2 sm:py-1 px-2.5 min-h-[44px] sm:min-h-0 rounded-lg border-destructive/40 text-destructive hover:bg-destructive/10"
                 onClick={() => setExclusions(prev => prev.filter(e => e !== exc))} aria-label={`Retirer ${exc}`}>
                 {exc} ×
               </Badge>
@@ -312,7 +342,45 @@ const StepSelect: React.FC<StepSelectProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-between gap-3">
+      {/* Live query preview */}
+      <div className="glass-card rounded-xl overflow-hidden">
+        <button
+          onClick={() => setPreviewOpen(!previewOpen)}
+          className="w-full p-4 sm:p-5 flex items-center justify-between text-left"
+        >
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            {previewOpen ? <EyeOff className="w-4 h-4 text-primary" /> : <Eye className="w-4 h-4 text-primary" />}
+            Aperçu de la requête
+          </h3>
+          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+            previewLen > previewLimit.limit
+              ? 'text-destructive bg-destructive/10'
+              : 'text-muted-foreground bg-muted'
+          }`}>
+            {previewLen}/{previewLimit.limit} car.
+          </span>
+        </button>
+        <AnimatePresence>
+          {previewOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5">
+                <pre className="text-xs font-mono bg-background/60 border border-border rounded-lg p-3 whitespace-pre-wrap break-all max-h-[150px] overflow-y-auto">
+                  {previewQuery || <span className="text-muted-foreground italic">Sélectionnez des titres pour voir la requête</span>}
+                </pre>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation - sticky on mobile */}
+      <div className="flex justify-between gap-3 sticky bottom-4 z-10 sm:static sm:z-auto bg-background/80 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none p-2 -mx-2 sm:p-0 sm:mx-0 rounded-xl sm:rounded-none">
         <Button variant="outline" onClick={onBack} size="lg" className="rounded-xl h-11 sm:h-12 px-5">
           <ArrowLeft className="w-4 h-4 mr-2" /> Retour
         </Button>
