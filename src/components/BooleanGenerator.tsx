@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import StepProgressBar from '@/components/StepProgressBar';
@@ -7,10 +7,15 @@ import type { NlpResult } from '@/components/steps/StepInput';
 import StepSelect from '@/components/steps/StepSelect';
 import StepResult from '@/components/steps/StepResult';
 import ThemeToggle from '@/components/ThemeToggle';
+import AuthModal from '@/components/AuthModal';
 import { generateBooleanQuery, type Platform } from '@/utils/queryGenerator';
 import { QUICK_TEMPLATES, type QuickTemplate } from '@/data/quickTemplates';
+import { useAuth } from '@/hooks/useAuth';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
-import { Zap, Rocket } from 'lucide-react';
+import { Zap, Rocket, User, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export type Seniority = '' | 'junior' | 'mid' | 'senior' | 'vp' | 'c-level' | 'director';
 
@@ -22,11 +27,13 @@ const STEPS = [
 
 const BooleanGenerator = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user, signOut } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
 
   const [step, setStep] = useState(0);
   const [inputValue, setInputValue] = useState('');
   const [mode, setMode] = useState<'free' | 'category'>('free');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [customTitles, setCustomTitles] = useState<string[]>([]);
   const [exclusions, setExclusions] = useState<string[]>([]);
@@ -34,6 +41,9 @@ const BooleanGenerator = () => {
   const [platform, setPlatform] = useState<Platform>('sales-navigator');
   const [location, setLocation] = useState('');
   const [seniority, setSeniority] = useState<Seniority>('');
+
+  // Ref for copy action in shortcuts
+  const copyRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const q = searchParams.get('q');
@@ -49,10 +59,12 @@ const BooleanGenerator = () => {
     const sharedQuery = searchParams.get('q');
     if (sharedQuery && step === 2 && selectedTitles.length === 0) return sharedQuery;
     return generateBooleanQuery(enhancedJobTitlesData, {
-      mode, inputValue, selectedCategory, selectedTitles, customTitles,
+      mode, inputValue, selectedCategory: selectedCategories[0] || '',
+      selectedCategories,
+      selectedTitles, customTitles,
       exclusions, skills, platform, location,
     });
-  }, [selectedTitles, customTitles, mode, inputValue, selectedCategory, exclusions, skills, platform, location, searchParams, step]);
+  }, [selectedTitles, customTitles, mode, inputValue, selectedCategories, exclusions, skills, platform, location, searchParams, step]);
 
   const shareUrl = useMemo(() => {
     if (!booleanQuery) return '';
@@ -66,7 +78,7 @@ const BooleanGenerator = () => {
   const applyTemplate = useCallback((template: QuickTemplate) => {
     setMode(template.mode);
     setInputValue(template.inputValue || '');
-    setSelectedCategory(template.selectedCategory || '');
+    setSelectedCategories(template.selectedCategory ? [template.selectedCategory] : []);
     setSkills(template.skills || []);
     setExclusions(template.exclusions || []);
     setPlatform(template.platform || 'sales-navigator');
@@ -88,7 +100,7 @@ const BooleanGenerator = () => {
     setStep(0);
     setInputValue('');
     setMode('free');
-    setSelectedCategory('');
+    setSelectedCategories([]);
     setSelectedTitles([]);
     setCustomTitles([]);
     setExclusions([]);
@@ -99,13 +111,53 @@ const BooleanGenerator = () => {
     setSearchParams({});
   };
 
+  // Keyboard shortcuts
+  const handleShortcutNext = useCallback(() => {
+    if (step === 0) {
+      const canProceed = mode === 'free' ? inputValue.trim().length > 0 : selectedCategories.length > 0;
+      if (canProceed) setStep(1);
+    } else if (step === 1 && selectedTitles.length > 0) {
+      setStep(2);
+    }
+  }, [step, mode, inputValue, selectedCategories, selectedTitles]);
+
+  const handleShortcutBack = useCallback(() => {
+    if (step > 0) setStep(step - 1);
+  }, [step]);
+
+  const handleShortcutCopy = useCallback(() => {
+    if (step === 2 && copyRef.current) copyRef.current();
+  }, [step]);
+
+  useKeyboardShortcuts({
+    onNext: handleShortcutNext,
+    onBack: handleShortcutBack,
+    onCopy: handleShortcutCopy,
+  });
+
   return (
     <div className="min-h-screen bg-background dot-grid">
       <div className="h-1.5 w-full" style={{ background: 'var(--gradient-hero)' }} />
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-3xl">
         <header className="text-center mb-8 sm:mb-12 relative">
-          <div className="absolute right-0 top-0">
+          <div className="absolute right-0 top-0 flex items-center gap-2">
+            {user ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" onClick={signOut} className="h-8 rounded-lg text-xs gap-1.5">
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{user.email?.split('@')[0]}</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Déconnexion</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => setAuthOpen(true)} className="h-8 rounded-lg text-xs gap-1.5">
+                <User className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Connexion</span>
+              </Button>
+            )}
             <ThemeToggle />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
@@ -149,20 +201,21 @@ const BooleanGenerator = () => {
               <motion.div key="step-0" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.25, ease: 'easeInOut' }}>
                 <StepInput mode={mode} setMode={setMode} inputValue={inputValue}
-                  setInputValue={setInputValue} selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory} onNext={() => setStep(1)}
+                  setInputValue={setInputValue} selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories} onNext={() => setStep(1)}
                   onNlpResult={handleNlpResult} />
               </motion.div>
             )}
             {step === 1 && (
               <motion.div key="step-1" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.25, ease: 'easeInOut' }}>
-                <StepSelect mode={mode} inputValue={inputValue} selectedCategory={selectedCategory}
+                <StepSelect mode={mode} inputValue={inputValue} selectedCategories={selectedCategories}
                   selectedTitles={selectedTitles} setSelectedTitles={setSelectedTitles}
                   customTitles={customTitles} setCustomTitles={setCustomTitles}
                   exclusions={exclusions} setExclusions={setExclusions}
                   skills={skills} setSkills={setSkills}
                   seniority={seniority} setSeniority={setSeniority}
+                  platform={platform} location={location}
                   onNext={() => setStep(2)} onBack={() => setStep(0)} />
               </motion.div>
             )}
@@ -172,7 +225,8 @@ const BooleanGenerator = () => {
                 <StepResult booleanQuery={booleanQuery} selectedCount={selectedTitles.length}
                   platform={platform} setPlatform={setPlatform}
                   location={location} setLocation={setLocation}
-                  shareUrl={shareUrl} onBack={() => setStep(1)} onReset={reset} />
+                  shareUrl={shareUrl} onBack={() => setStep(1)} onReset={reset}
+                  user={user} copyRef={copyRef} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -185,8 +239,13 @@ const BooleanGenerator = () => {
               className="font-semibold text-primary hover:underline underline-offset-2">La‑Mine.io</a>
             {' '}· Outil 100% gratuit
           </p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-60">
+            ⌘+Enter suivant · Esc retour · ⌘+C copier
+          </p>
         </footer>
       </div>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 };
