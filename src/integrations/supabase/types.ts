@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_events: {
+        Row: {
+          categories: string[]
+          created_at: string
+          id: string
+          location: string
+          mode: string
+          platform: string
+          titles_count: number
+          user_id: string | null
+        }
+        Insert: {
+          categories?: string[]
+          created_at?: string
+          id?: string
+          location?: string
+          mode?: string
+          platform?: string
+          titles_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          id?: string
+          location?: string
+          mode?: string
+          platform?: string
+          titles_count?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

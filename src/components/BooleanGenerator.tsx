@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import StepProgressBar from '@/components/StepProgressBar';
 import StepInput from '@/components/steps/StepInput';
 import type { NlpResult } from '@/components/steps/StepInput';
@@ -12,8 +12,9 @@ import { generateBooleanQuery, type Platform } from '@/utils/queryGenerator';
 import { QUICK_TEMPLATES, type QuickTemplate } from '@/data/quickTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { trackQueryGenerated } from '@/hooks/useUsageTracking';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
-import { Zap, Rocket, User, LogOut } from 'lucide-react';
+import { Zap, Rocket, User, LogOut, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
@@ -142,6 +143,9 @@ const BooleanGenerator = () => {
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-3xl">
         <header className="text-center mb-8 sm:mb-12 relative">
           <div className="absolute right-0 top-0 flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild className="h-8 rounded-lg text-xs gap-1.5">
+              <Link to="/dashboard"><BarChart3 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Stats</span></Link>
+            </Button>
             {user ? (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -216,7 +220,16 @@ const BooleanGenerator = () => {
                   skills={skills} setSkills={setSkills}
                   seniority={seniority} setSeniority={setSeniority}
                   platform={platform} location={location}
-                  onNext={() => setStep(2)} onBack={() => setStep(0)} />
+                  onNext={() => {
+                    setStep(2);
+                    trackQueryGenerated({
+                      categories: selectedCategories,
+                      platform,
+                      location,
+                      titlesCount: selectedTitles.length,
+                      mode,
+                    });
+                  }} onBack={() => setStep(0)} />
               </motion.div>
             )}
             {step === 2 && (
