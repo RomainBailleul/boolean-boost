@@ -2,25 +2,40 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Copy, Check, RotateCcw, Linkedin, Bookmark, Trash2, Download } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
+import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
 
 interface StepResultProps {
   booleanQuery: string;
   selectedCount: number;
+  platform: Platform;
+  setPlatform: (p: Platform) => void;
   onBack: () => void;
   onReset: () => void;
 }
 
+const PLATFORM_OPTIONS: { value: Platform; icon: React.ReactNode; label: string }[] = [
+  { value: 'linkedin', icon: <Search className="w-4 h-4" />, label: 'LinkedIn Free' },
+  { value: 'sales-navigator', icon: <Zap className="w-4 h-4" />, label: 'Sales Navigator' },
+  { value: 'google-xray', icon: <Globe className="w-4 h-4" />, label: 'Google X-Ray' },
+];
+
 const StepResult: React.FC<StepResultProps> = ({
-  booleanQuery, selectedCount, onBack, onReset,
+  booleanQuery, selectedCount, platform, setPlatform, onBack, onReset,
 }) => {
   const [copied, setCopied] = useState(false);
   const [saveLabel, setSaveLabel] = useState('');
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
   const { savedQueries, saveQuery, deleteQuery } = useSavedQueries();
+
+  const limit = PLATFORM_LIMITS[platform];
+  const queryLength = booleanQuery.length;
+  const isOverLimit = queryLength > limit.limit;
+  const isNearLimit = queryLength > limit.limit * 0.85 && !isOverLimit;
 
   const copyToClipboard = async (text?: string) => {
     try {
@@ -75,22 +90,69 @@ const StepResult: React.FC<StepResultProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Platform selector */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground mb-3">Plateforme cible</h3>
+        <div className="grid grid-cols-3 gap-2">
+          {PLATFORM_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setPlatform(opt.value)}
+              aria-pressed={platform === opt.value}
+              className={`rounded-lg border p-2.5 sm:p-3 text-center transition-all text-xs sm:text-sm font-medium ${
+                platform === opt.value
+                  ? 'border-primary bg-primary/8 ring-2 ring-primary/25 text-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:border-primary/30'
+              }`}
+            >
+              <span className="flex items-center justify-center gap-1.5">
+                {opt.icon}
+                {opt.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Result card */}
       <div className="glass-card rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-            <Linkedin className="w-5 h-5 text-primary" />
             Votre requête Boolean
           </h2>
           <div className="flex gap-2 text-[11px] sm:text-xs">
             <span className="font-medium text-accent bg-accent/10 px-2 py-0.5 rounded-full">
               {selectedCount} titres
             </span>
-            <span className="font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-              {booleanQuery.length} car.
+            <span className={`font-medium px-2 py-0.5 rounded-full ${
+              isOverLimit
+                ? 'text-destructive bg-destructive/10'
+                : isNearLimit
+                  ? 'text-[hsl(40_90%_45%)] bg-[hsl(40_90%_45%/0.1)]'
+                  : 'text-muted-foreground bg-muted'
+            }`}>
+              {queryLength}/{limit.limit} car.
             </span>
           </div>
         </div>
+
+        {/* Character limit warnings */}
+        {isOverLimit && (
+          <Alert className="mb-4 border-destructive/50 bg-destructive/5">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="text-xs text-destructive">
+              La requête dépasse la limite de {limit.limit} caractères pour {limit.label}. Retirez des titres ou exclusions pour réduire la taille.
+            </AlertDescription>
+          </Alert>
+        )}
+        {isNearLimit && (
+          <Alert className="mb-4 border-[hsl(40_90%_45%/0.5)] bg-[hsl(40_90%_45%/0.05)]">
+            <AlertTriangle className="h-4 w-4 text-[hsl(40_90%_45%)]" />
+            <AlertDescription className="text-xs text-[hsl(40_90%_45%)]">
+              Vous approchez de la limite de {limit.limit} caractères pour {limit.label}.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Textarea
           value={booleanQuery}
@@ -108,7 +170,11 @@ const StepResult: React.FC<StepResultProps> = ({
         </Button>
 
         <p className="text-[11px] sm:text-xs text-muted-foreground text-center mt-3">
-          Collez dans le champ «&nbsp;Titre&nbsp;» de LinkedIn Sales Navigator
+          {platform === 'google-xray'
+            ? 'Collez dans la barre de recherche Google'
+            : platform === 'sales-navigator'
+              ? 'Collez dans le champ «\u00a0Titre\u00a0» de LinkedIn Sales Navigator'
+              : 'Collez dans la barre de recherche LinkedIn'}
         </p>
       </div>
 
