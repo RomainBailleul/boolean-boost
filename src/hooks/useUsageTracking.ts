@@ -11,7 +11,7 @@ interface TrackEventParams {
 export const trackQueryGenerated = async (params: TrackEventParams) => {
   const { data: { session } } = await supabase.auth.getSession();
 
-  await supabase.from('usage_events' as any).insert({
+  await supabase.from('usage_events').insert({
     user_id: session?.user?.id ?? null,
     categories: params.categories,
     platform: params.platform,
