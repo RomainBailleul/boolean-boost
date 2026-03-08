@@ -124,7 +124,7 @@ const StepResult: React.FC<StepResultProps> = ({
             onChange={(e) => setSaveLabel(e.target.value)}
             placeholder="Nom (ex: Prospection CMO France)..."
             className="flex-1 h-9 text-sm rounded-lg"
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            onKeyDown={(e) => e.key === 'Enter' && booleanQuery.trim() && handleSave()}
           />
           <Button
             onClick={handleSave}

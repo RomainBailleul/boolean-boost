@@ -9,15 +9,15 @@ export const useJobTitleSuggestions = (
   jobTitlesData: Record<string, string[]>,
   maxSuggestions: number = 10
 ) => {
+  const allTitles = useMemo(
+    () => Object.values(jobTitlesData).flat(),
+    [jobTitlesData]
+  );
+
   const suggestions = useMemo(() => {
     if (!inputValue.trim()) return [];
-    
-    // Récupère tous les titres de toutes les catégories
-    const allTitles = Object.values(jobTitlesData).flat();
-    
-    // Utilise l'algorithme de tri par pertinence
     return getSortedSuggestions(inputValue, allTitles, maxSuggestions);
-  }, [inputValue, jobTitlesData, maxSuggestions]);
+  }, [inputValue, allTitles, maxSuggestions]);
 
   return suggestions;
 };
