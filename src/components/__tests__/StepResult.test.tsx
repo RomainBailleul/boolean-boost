@@ -100,7 +100,7 @@ describe("StepResult", () => {
 
   it("should make textarea readonly", () => {
     renderWithProviders(<StepResult {...defaultProps} />);
-    const textarea = screen.getByRole("textbox");
+    const textarea = screen.getByDisplayValue(defaultProps.booleanQuery);
     expect(textarea).toHaveAttribute("readonly");
   });
 });
