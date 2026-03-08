@@ -13,6 +13,7 @@ export interface QueryOptions {
   exclusions?: string[];
   skills?: string[];
   platform?: Platform;
+  location?: string;
 }
 
 /** Limites de caractères par plateforme */
