@@ -27,9 +27,10 @@ const PLATFORM_OPTIONS: { value: Platform; icon: React.ReactNode; label: string 
 ];
 
 const StepResult: React.FC<StepResultProps> = ({
-  booleanQuery, selectedCount, platform, setPlatform, onBack, onReset,
+  booleanQuery, selectedCount, platform, setPlatform, location, setLocation, shareUrl, onBack, onReset,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [saveLabel, setSaveLabel] = useState('');
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
