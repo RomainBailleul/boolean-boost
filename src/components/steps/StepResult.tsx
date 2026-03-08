@@ -118,6 +118,23 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       </div>
 
+      {/* Location */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <MapPin className="w-4 h-4 text-primary" />
+          Localisation (optionnel)
+        </h3>
+        <Input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Ex: Paris, France, Île-de-France..."
+          className="h-9 text-sm rounded-lg"
+        />
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Sera ajouté en AND à la requête
+        </p>
+      </div>
+
       {/* Result card */}
       <div className="glass-card rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
