@@ -33,6 +33,7 @@ const StepInput: React.FC<StepInputProps> = ({
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
           onClick={() => setMode('free')}
+          aria-pressed={mode === 'free'}
           className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
             mode === 'free'
               ? 'ring-2 ring-primary border-primary/40'
@@ -46,6 +47,7 @@ const StepInput: React.FC<StepInputProps> = ({
         </button>
         <button
           onClick={() => setMode('category')}
+          aria-pressed={mode === 'category'}
           className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
             mode === 'category'
               ? 'ring-2 ring-primary border-primary/40'
@@ -90,6 +92,8 @@ const StepInput: React.FC<StepInputProps> = ({
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
+                aria-pressed={selectedCategory === category}
+                aria-label={`Catégorie ${category.replace('_', ' ')}`}
                 className={`rounded-lg border p-3 sm:p-4 text-left transition-all hover:shadow-md ${
                   selectedCategory === category
                     ? 'border-primary bg-primary/8 ring-2 ring-primary/25 shadow-md'

@@ -129,6 +129,7 @@ const StepResult: React.FC<StepResultProps> = ({
           <Button
             onClick={handleSave}
             variant="outline"
+            disabled={!booleanQuery.trim()}
             className="h-9 rounded-lg text-xs font-semibold px-4"
           >
             {justSaved ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}

@@ -8,7 +8,7 @@ interface StepProgressBarProps {
 
 const StepProgressBar: React.FC<StepProgressBarProps> = ({ currentStep, steps }) => {
   return (
-    <div className="flex items-center justify-between w-full max-w-md mx-auto mb-8 sm:mb-10 px-2">
+    <div className="flex items-center justify-between w-full max-w-md mx-auto mb-8 sm:mb-10 px-2" role="progressbar" aria-valuenow={currentStep + 1} aria-valuemin={1} aria-valuemax={steps.length} aria-label={`Étape ${currentStep + 1} sur ${steps.length}: ${steps[currentStep]?.label}`}>
       {steps.map((step, index) => {
         const isCompleted = index < currentStep;
         const isCurrent = index === currentStep;

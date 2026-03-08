@@ -43,17 +43,21 @@ const StepSelect: React.FC<StepSelectProps> = ({
     return result;
   }, [mode, autoVariants, suggestions, categoryTitles]);
 
-  const prevInputRef = React.useRef('');
+  const prevVariantsRef = React.useRef<string[]>([]);
   React.useEffect(() => {
-    if (inputValue !== prevInputRef.current && autoVariants.length > 0) {
-      prevInputRef.current = inputValue;
+    if (autoVariants.length > 0) {
       setSelectedTitles(prev => {
-        const newSet = new Set(prev);
+        // Remove previously auto-added variants that are no longer relevant
+        const oldSet = new Set(prevVariantsRef.current);
+        const cleaned = prev.filter(t => !oldSet.has(t));
+        // Add new auto variants
+        const newSet = new Set(cleaned);
         autoVariants.forEach(v => newSet.add(v));
         return Array.from(newSet);
       });
+      prevVariantsRef.current = autoVariants;
     }
-  }, [inputValue, autoVariants, setSelectedTitles]);
+  }, [autoVariants, setSelectedTitles]);
 
   const toggleTitle = (title: string) => {
     setSelectedTitles(prev =>
@@ -99,6 +103,9 @@ const StepSelect: React.FC<StepSelectProps> = ({
                 variant={selectedTitles.includes(title) ? 'default' : 'outline'}
                 className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
                 onClick={() => toggleTitle(title)}
+                role="checkbox"
+                aria-checked={selectedTitles.includes(title)}
+                aria-label={title}
               >
                 {title}
               </Badge>
@@ -137,6 +144,9 @@ const StepSelect: React.FC<StepSelectProps> = ({
               variant={selectedTitles.includes(title) ? 'default' : 'outline'}
               className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
               onClick={() => toggleTitle(title)}
+              role="checkbox"
+              aria-checked={selectedTitles.includes(title)}
+              aria-label={title}
             >
               {title}
             </Badge>
