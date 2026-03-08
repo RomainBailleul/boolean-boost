@@ -49,7 +49,7 @@ Généré le : 2026-03-08 (v3)
 - [x] P1-03 | Documentation | memory.md + sprint-backlog.md + security-backlog.md | MAJ
 
 ### 🟡 P2 — Amélioration
-- [ ] P2-01 | Tests | useAuth, useKeyboardShortcuts, useDashboardStats | Tests unitaires
+- [x] P2-01 | Tests | useAuth, useKeyboardShortcuts, useDashboardStats, useUsageTracking | Tests unitaires
 - [ ] P2-02 | Tests | useSavedQueries | Tests mode cloud
 - [x] P2-03 | Performance | App.tsx | Lazy-load Dashboard
 - [x] P2-04 | UX | useDashboardStats | Fix dépendance user → user?.id
