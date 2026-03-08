@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Search, Briefcase, ArrowRight } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Search, Briefcase, ArrowRight, Wand2, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
+
+export interface NlpResult {
+  jobTitle: string;
+  location: string;
+  seniority: string;
+  skills: string[];
+  exclusions: string[];
+}
 
 interface StepInputProps {
   mode: 'free' | 'category';
@@ -13,6 +24,7 @@ interface StepInputProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
   onNext: () => void;
+  onNlpResult?: (result: NlpResult) => void;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -23,12 +35,91 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const StepInput: React.FC<StepInputProps> = ({
   mode, setMode, inputValue, setInputValue,
-  selectedCategory, setSelectedCategory, onNext,
+  selectedCategory, setSelectedCategory, onNext, onNlpResult,
 }) => {
+  const [nlpInput, setNlpInput] = useState('');
+  const [nlpLoading, setNlpLoading] = useState(false);
+  const { toast } = useToast();
+
   const canProceed = mode === 'free' ? inputValue.trim().length > 0 : selectedCategory.length > 0;
+
+  const handleNlp = async () => {
+    if (!nlpInput.trim()) return;
+    setNlpLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-natural-query', {
+        body: { text: nlpInput.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: 'Erreur IA', description: data.error, variant: 'destructive' });
+        return;
+      }
+      // Apply parsed result
+      if (data.jobTitle) {
+        setInputValue(data.jobTitle);
+        setMode('free');
+      }
+      if (onNlpResult) {
+        onNlpResult(data as NlpResult);
+      }
+      toast({ title: '✨ Analyse terminée', description: `Poste détecté : ${data.jobTitle || 'non identifié'}` });
+      // Auto-proceed to step 2
+      if (data.jobTitle) {
+        setTimeout(() => onNext(), 300);
+      }
+    } catch (e) {
+      console.error('NLP error:', e);
+      toast({ title: 'Erreur', description: "Impossible d'analyser la requête.", variant: 'destructive' });
+    } finally {
+      setNlpLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-5 sm:space-y-6">
+      {/* NLP natural language input */}
+      <div className="glass-card rounded-xl p-4 sm:p-5 border-accent/20">
+        <div className="flex items-center gap-2 mb-2">
+          <Wand2 className="w-4 h-4 text-accent" />
+          <h3 className="text-sm font-bold text-foreground">Recherche intelligente (IA)</h3>
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-3">
+          Décrivez votre profil idéal en langage naturel
+        </p>
+        <Textarea
+          value={nlpInput}
+          onChange={(e) => setNlpInput(e.target.value)}
+          placeholder="Ex: Je cherche un directeur marketing senior à Paris, spécialisé en SaaS B2B, pas de stagiaire ni junior"
+          className="text-sm min-h-[60px] rounded-lg resize-none bg-background/80"
+          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleNlp())}
+        />
+        <Button
+          onClick={handleNlp}
+          disabled={!nlpInput.trim() || nlpLoading}
+          className="mt-3 w-full glow-button rounded-lg h-10 text-sm font-semibold"
+        >
+          {nlpLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Analyse en cours…
+            </>
+          ) : (
+            <>
+              <Wand2 className="w-4 h-4 mr-2" />
+              Analyser avec l'IA
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Separator */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground font-medium">ou recherche manuelle</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
       {/* Mode toggle */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
