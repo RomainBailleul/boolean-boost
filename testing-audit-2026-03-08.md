@@ -3,9 +3,9 @@ Date : 2026-03-08
 Stack : Vitest + React Testing Library + TypeScript
 
 ## Couverture actuelle estimée
-- Fichiers testés : 5 / 10 fichiers source
-- Couverture lignes estimée : ~75%
-- Tests générés : ~57 cas de test
+- Fichiers testés : 8 / 10 fichiers source
+- Couverture lignes estimée : ~90%
+- Tests générés : ~100 cas de test
 
 ## Fichiers testés
 
@@ -17,12 +17,12 @@ Stack : Vitest + React Testing Library + TypeScript
 - [x] src/hooks/useSavedQueries.ts — 9 tests (CRUD, localStorage, error handling)
 - [x] src/hooks/useJobTitleSuggestions.ts — 5 tests (matching, limits, empty states)
 
-### P2 (confort) — partiel
+### P2 (confort) ✅
 - [x] src/components/StepProgressBar.tsx — 4 tests (rendu, accessibilité, completed states)
-- [ ] src/components/BooleanGenerator.tsx — non testé (composant page complexe)
-- [ ] src/components/steps/StepInput.tsx — non testé
-- [ ] src/components/steps/StepSelect.tsx — non testé
-- [ ] src/components/steps/StepResult.tsx — non testé
+- [x] src/components/steps/StepInput.tsx — 14 tests (mode toggle, catégories, validation, keyboard)
+- [x] src/components/steps/StepSelect.tsx — 15 tests (badges, custom input, navigation, variants)
+- [x] src/components/steps/StepResult.tsx — 12 tests (copy, save, navigation, edge cases)
+- [ ] src/components/BooleanGenerator.tsx — non testé (composant page, orchestration)
 - [ ] src/lib/utils.ts — non testé (trivial, cn wrapper)
 
 ## Commandes

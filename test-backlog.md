@@ -21,8 +21,8 @@
 - [x] StepProgressBar — rendu + accessibilité (4 tests)
 
 ## 🟡 P2 — Backlog futur
-- [ ] StepInput — mode toggle, category selection, input validation
-- [ ] StepSelect — badge toggle, custom input, select all/deselect
-- [ ] StepResult — copy to clipboard, save flow, export CSV/TXT
+- [x] StepInput — mode toggle, category selection, input validation (14 tests)
+- [x] StepSelect — badge toggle, custom input, select all/deselect (15 tests)
+- [x] StepResult — copy to clipboard, save section, navigation (12 tests)
 - [ ] BooleanGenerator — step navigation, full flow integration
 - [ ] utils/cn — trivial, faible valeur
