@@ -52,7 +52,8 @@ export const generateBooleanQuery = (
   // Wrap in parentheses if we'll add AND/NOT
   const exclusions = (options.exclusions || []).filter(Boolean);
   const skills = (options.skills || []).filter(Boolean);
-  const hasModifiers = exclusions.length > 0 || skills.length > 0;
+  const location = (options.location || '').trim();
+  const hasModifiers = exclusions.length > 0 || skills.length > 0 || location.length > 0;
   const platform = options.platform || 'linkedin';
 
   let query = hasModifiers ? `(${titlePart})` : titlePart;
