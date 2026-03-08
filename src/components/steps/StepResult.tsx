@@ -190,13 +190,31 @@ const StepResult: React.FC<StepResultProps> = ({
           {copied ? 'Copié !' : 'Copier la requête'}
         </Button>
 
-        <p className="text-[11px] sm:text-xs text-muted-foreground text-center mt-3">
-          {platform === 'google-xray'
-            ? 'Collez dans la barre de recherche Google'
-            : platform === 'sales-navigator'
-              ? 'Collez dans le champ «\u00a0Titre\u00a0» de LinkedIn Sales Navigator'
-              : 'Collez dans la barre de recherche LinkedIn'}
-        </p>
+        <div className="flex gap-2 mt-3">
+          <p className="flex-1 text-[11px] sm:text-xs text-muted-foreground">
+            {platform === 'google-xray'
+              ? 'Collez dans la barre de recherche Google'
+              : platform === 'sales-navigator'
+                ? 'Collez dans le champ «\u00a0Titre\u00a0» de LinkedIn Sales Navigator'
+                : 'Collez dans la barre de recherche LinkedIn'}
+          </p>
+          {shareUrl && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 rounded-md text-[11px] px-2.5 shrink-0"
+              onClick={async () => {
+                await navigator.clipboard.writeText(shareUrl);
+                setLinkCopied(true);
+                toast({ title: "Lien copié !", description: "Partagez ce lien pour partager votre requête." });
+                setTimeout(() => setLinkCopied(false), 2000);
+              }}
+            >
+              {linkCopied ? <Check className="w-3 h-3 mr-1" /> : <Share2 className="w-3 h-3 mr-1" />}
+              {linkCopied ? 'Copié' : 'Partager'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Save card */}

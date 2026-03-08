@@ -9,6 +9,9 @@ const defaultProps = {
   selectedCount: 3,
   platform: 'sales-navigator' as const,
   setPlatform: vi.fn(),
+  location: '',
+  setLocation: vi.fn(),
+  shareUrl: 'https://boolean-boost.lovable.app/?q=test',
   onBack: vi.fn(),
   onReset: vi.fn(),
 };
