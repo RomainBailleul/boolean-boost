@@ -13,6 +13,9 @@ interface StepResultProps {
   selectedCount: number;
   platform: Platform;
   setPlatform: (p: Platform) => void;
+  location: string;
+  setLocation: (loc: string) => void;
+  shareUrl: string;
   onBack: () => void;
   onReset: () => void;
 }
