@@ -60,7 +60,8 @@ export const useDashboardStats = (user: User | null): DashboardStats => {
         const pageSize = 1000;
         let hasMore = true;
 
-        while (hasMore) {
+        const MAX_PAGES = 10; // Safety cap: 10,000 rows max
+        while (hasMore && offset / pageSize < MAX_PAGES) {
           const { data, error } = await supabase
             .from('usage_events')
             .select('*')

@@ -53,3 +53,21 @@ Généré le : 2026-03-08 (v3)
 - [x] P2-02 | Tests | useSavedQueries | Tests mode cloud (5 tests)
 - [x] P2-03 | Performance | App.tsx | Lazy-load Dashboard
 - [x] P2-04 | UX | useDashboardStats | Fix dépendance user → user?.id
+
+## Sprint P5 — Post-audit 2 (issu de l'audit du 2026-03-08)
+
+### 🟡 P2 — Amélioration
+- [ ] P2-01 | Documentation | memory.md | Corriger incohérence P2 ouverts
+- [ ] P2-02 | Sécurité | migrations | Fix policy INSERT OR logic usage_events
+- [ ] P2-03 | Tests | Dashboard.tsx | Tests unitaires page Dashboard
+- [ ] P2-04 | Performance | useDashboardStats.ts | Limite max itérations pagination
+
+### ✅ Complétés lors du sprint P4
+- [x] P0-01 + P0-02 | Pagination + indexes usage_events
+- [x] P1-01 | Validation INSERT policy usage_events
+- [x] P1-02 | Suppression as any
+- [x] P1-03 | MAJ documentation
+- [x] P2-01 | Tests unitaires hooks (32+ tests)
+- [x] P2-02 | Tests useSavedQueries cloud (5 tests)
+- [x] P2-03 | Lazy-load Dashboard
+- [x] P2-04 | Fix dépendance user?.id
