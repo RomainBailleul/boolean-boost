@@ -107,9 +107,33 @@ const StepResult: React.FC<StepResultProps> = ({
       {/* Saved queries */}
       {savedQueries.length > 0 && (
         <div className="glass-card rounded-xl p-4 sm:p-5">
-          <h3 className="text-sm font-bold text-foreground mb-3">
-            Requêtes sauvegardées ({savedQueries.length})
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-foreground">
+              Requêtes sauvegardées ({savedQueries.length})
+            </h3>
+            <div className="flex gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('csv')}
+                title="Exporter en CSV"
+              >
+                <Download className="w-3 h-3 mr-1" />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 rounded-md text-[11px] px-2.5"
+                onClick={() => exportQueries('txt')}
+                title="Exporter en TXT"
+              >
+                <Download className="w-3 h-3 mr-1" />
+                TXT
+              </Button>
+            </div>
+          </div>
           <div className="space-y-2 max-h-[250px] overflow-y-auto">
             {savedQueries.map((sq) => (
               <div
