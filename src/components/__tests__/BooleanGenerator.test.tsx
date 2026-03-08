@@ -182,9 +182,8 @@ describe("BooleanGenerator", () => {
     // Copy
     await user.click(screen.getByRole("button", { name: /copier la requête/i }));
     await screen.findByText("Copié !");
-    expect(writeTextMock).toHaveBeenCalled();
-    // The copied value should contain OR-joined quoted titles
-    const copiedValue = writeTextMock.mock.calls[0][0];
+    expect(spy).toHaveBeenCalled();
+    const copiedValue = spy.mock.calls[0][0];
     expect(copiedValue).toContain("OR");
     expect(copiedValue).toContain('"');
   });
