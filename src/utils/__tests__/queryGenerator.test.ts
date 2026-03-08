@@ -131,11 +131,8 @@ describe("generateBooleanQuery", () => {
   };
 
   it("should generate OR query in free mode with inputValue", () => {
-    // Arrange
     const options = { mode: "free" as const, inputValue: "CMO" };
-    // Act
     const result = generateBooleanQuery(mockData, options);
-    // Assert
     expect(result).toBe('"CMO"');
   });
 
@@ -180,5 +177,53 @@ describe("generateBooleanQuery", () => {
       selectedCategory: "nonexistent",
     };
     expect(generateBooleanQuery(mockData, options)).toBe("");
+  });
+
+  // ─── P0: exclusions NOT ─────────────────────────────────────
+  it("should append NOT exclusions to query", () => {
+    const options = {
+      mode: "free" as const,
+      inputValue: "",
+      selectedTitles: ["CMO"],
+      exclusions: ["Intern", "Stagiaire"],
+    };
+    const result = generateBooleanQuery(mockData, options);
+    expect(result).toBe('("CMO") NOT "Intern" NOT "Stagiaire"');
+  });
+
+  // ─── P0: skills AND ────────────────────────────────────────
+  it("should append AND skills to query", () => {
+    const options = {
+      mode: "free" as const,
+      inputValue: "",
+      selectedTitles: ["CMO"],
+      skills: ["SaaS", "B2B"],
+    };
+    const result = generateBooleanQuery(mockData, options);
+    expect(result).toBe('("CMO") AND ("SaaS" AND "B2B")');
+  });
+
+  it("should combine skills AND and exclusions NOT", () => {
+    const options = {
+      mode: "free" as const,
+      inputValue: "",
+      selectedTitles: ["CMO"],
+      skills: ["SaaS"],
+      exclusions: ["Intern"],
+    };
+    const result = generateBooleanQuery(mockData, options);
+    expect(result).toBe('("CMO") AND ("SaaS") NOT "Intern"');
+  });
+
+  // ─── P0: Google X-Ray ──────────────────────────────────────
+  it("should prepend site:linkedin.com/in/ for google-xray platform", () => {
+    const options = {
+      mode: "free" as const,
+      inputValue: "",
+      selectedTitles: ["CMO"],
+      platform: "google-xray" as const,
+    };
+    const result = generateBooleanQuery(mockData, options);
+    expect(result).toBe('site:linkedin.com/in/ "CMO"');
   });
 });

@@ -4,7 +4,7 @@ import StepProgressBar from '@/components/StepProgressBar';
 import StepInput from '@/components/steps/StepInput';
 import StepSelect from '@/components/steps/StepSelect';
 import StepResult from '@/components/steps/StepResult';
-import { generateBooleanQuery } from '@/utils/queryGenerator';
+import { generateBooleanQuery, type Platform } from '@/utils/queryGenerator';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
 import { Zap } from 'lucide-react';
 
@@ -21,6 +21,9 @@ const BooleanGenerator = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [customTitles, setCustomTitles] = useState<string[]>([]);
+  const [exclusions, setExclusions] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [platform, setPlatform] = useState<Platform>('sales-navigator');
 
   const booleanQuery = useMemo(() => {
     return generateBooleanQuery(enhancedJobTitlesData, {
@@ -29,8 +32,11 @@ const BooleanGenerator = () => {
       selectedCategory,
       selectedTitles,
       customTitles,
+      exclusions,
+      skills,
+      platform,
     });
-  }, [selectedTitles, customTitles, mode, inputValue, selectedCategory]);
+  }, [selectedTitles, customTitles, mode, inputValue, selectedCategory, exclusions, skills, platform]);
 
   const reset = () => {
     setStep(0);
@@ -39,15 +45,16 @@ const BooleanGenerator = () => {
     setSelectedCategory('');
     setSelectedTitles([]);
     setCustomTitles([]);
+    setExclusions([]);
+    setSkills([]);
+    setPlatform('sales-navigator');
   };
 
   return (
     <div className="min-h-screen bg-background dot-grid">
-      {/* Hero gradient bar */}
       <div className="h-1.5 w-full" style={{ background: 'var(--gradient-hero)' }} />
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-3xl">
-        {/* Header */}
         <header className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             <Zap className="w-3.5 h-3.5" />
@@ -63,10 +70,8 @@ const BooleanGenerator = () => {
           </p>
         </header>
 
-        {/* Progress */}
         <StepProgressBar currentStep={step} steps={STEPS} />
 
-        {/* Steps */}
         <div className="min-h-[400px] relative">
           <AnimatePresence mode="wait">
             {step === 0 && (
@@ -105,6 +110,10 @@ const BooleanGenerator = () => {
                   setSelectedTitles={setSelectedTitles}
                   customTitles={customTitles}
                   setCustomTitles={setCustomTitles}
+                  exclusions={exclusions}
+                  setExclusions={setExclusions}
+                  skills={skills}
+                  setSkills={setSkills}
                   onNext={() => setStep(2)}
                   onBack={() => setStep(0)}
                 />
@@ -122,6 +131,8 @@ const BooleanGenerator = () => {
                 <StepResult
                   booleanQuery={booleanQuery}
                   selectedCount={selectedTitles.length}
+                  platform={platform}
+                  setPlatform={setPlatform}
                   onBack={() => setStep(1)}
                   onReset={reset}
                 />
@@ -130,7 +141,6 @@ const BooleanGenerator = () => {
           </AnimatePresence>
         </div>
 
-        {/* Footer */}
         <footer className="mt-12 sm:mt-16 text-center border-t border-border pt-6 pb-4">
           <p className="text-xs text-muted-foreground">
             Créé par{' '}

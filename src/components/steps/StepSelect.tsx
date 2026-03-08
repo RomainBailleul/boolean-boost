@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, Sparkles, ShieldMinus, Target } from 'lucide-react';
 import { useJobTitleSuggestions } from '@/hooks/useJobTitleSuggestions';
 import { generateVariants } from '@/utils/variantGenerator';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
@@ -15,6 +15,10 @@ interface StepSelectProps {
   setSelectedTitles: React.Dispatch<React.SetStateAction<string[]>>;
   customTitles: string[];
   setCustomTitles: React.Dispatch<React.SetStateAction<string[]>>;
+  exclusions: string[];
+  setExclusions: React.Dispatch<React.SetStateAction<string[]>>;
+  skills: string[];
+  setSkills: React.Dispatch<React.SetStateAction<string[]>>;
   onNext: () => void;
   onBack: () => void;
 }
@@ -23,9 +27,13 @@ const StepSelect: React.FC<StepSelectProps> = ({
   mode, inputValue, selectedCategory,
   selectedTitles, setSelectedTitles,
   customTitles, setCustomTitles,
+  exclusions, setExclusions,
+  skills, setSkills,
   onNext, onBack,
 }) => {
   const [customInput, setCustomInput] = React.useState('');
+  const [exclusionInput, setExclusionInput] = React.useState('');
+  const [skillInput, setSkillInput] = React.useState('');
   const suggestions = useJobTitleSuggestions(inputValue, enhancedJobTitlesData, 20);
   const autoVariants = useMemo(() => generateVariants(inputValue), [inputValue]);
 
@@ -47,10 +55,8 @@ const StepSelect: React.FC<StepSelectProps> = ({
   React.useEffect(() => {
     if (autoVariants.length > 0) {
       setSelectedTitles(prev => {
-        // Remove previously auto-added variants that are no longer relevant
         const oldSet = new Set(prevVariantsRef.current);
         const cleaned = prev.filter(t => !oldSet.has(t));
-        // Add new auto variants
         const newSet = new Set(cleaned);
         autoVariants.forEach(v => newSet.add(v));
         return Array.from(newSet);
@@ -71,6 +77,22 @@ const StepSelect: React.FC<StepSelectProps> = ({
       setCustomTitles(prev => [...prev, trimmed]);
       setSelectedTitles(prev => [...prev, trimmed]);
       setCustomInput('');
+    }
+  };
+
+  const addExclusion = () => {
+    const trimmed = exclusionInput.trim();
+    if (trimmed && !exclusions.includes(trimmed)) {
+      setExclusions(prev => [...prev, trimmed]);
+      setExclusionInput('');
+    }
+  };
+
+  const addSkill = () => {
+    const trimmed = skillInput.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills(prev => [...prev, trimmed]);
+      setSkillInput('');
     }
   };
 
@@ -176,6 +198,82 @@ const StepSelect: React.FC<StepSelectProps> = ({
             onKeyDown={(e) => e.key === 'Enter' && addCustom()}
           />
           <Button variant="outline" onClick={addCustom} disabled={!customInput.trim()} className="h-9 w-9 p-0 rounded-lg">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Skills AND */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-2">
+          <Target className="w-4 h-4 text-accent" />
+          Compétences requises (AND)
+        </h3>
+        <p className="text-[11px] text-muted-foreground mb-3">
+          Ajoutez des mots-clés obligatoires pour affiner la recherche
+        </p>
+        {skills.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {skills.map((skill) => (
+              <Badge
+                key={`skill-${skill}`}
+                variant="default"
+                className="cursor-pointer text-xs py-1 px-2.5 rounded-lg bg-accent text-accent-foreground hover:bg-accent/80"
+                onClick={() => setSkills(prev => prev.filter(s => s !== skill))}
+                aria-label={`Retirer ${skill}`}
+              >
+                {skill} ×
+              </Badge>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Input
+            value={skillInput}
+            onChange={(e) => setSkillInput(e.target.value)}
+            placeholder="Ex: SaaS, Management, B2B..."
+            className="flex-1 h-9 text-sm rounded-lg"
+            onKeyDown={(e) => e.key === 'Enter' && addSkill()}
+          />
+          <Button variant="outline" onClick={addSkill} disabled={!skillInput.trim()} className="h-9 w-9 p-0 rounded-lg">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Exclusions NOT */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-2">
+          <ShieldMinus className="w-4 h-4 text-destructive" />
+          Exclusions (NOT)
+        </h3>
+        <p className="text-[11px] text-muted-foreground mb-3">
+          Termes à exclure des résultats
+        </p>
+        {exclusions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {exclusions.map((exc) => (
+              <Badge
+                key={`exc-${exc}`}
+                variant="outline"
+                className="cursor-pointer text-xs py-1 px-2.5 rounded-lg border-destructive/40 text-destructive hover:bg-destructive/10"
+                onClick={() => setExclusions(prev => prev.filter(e => e !== exc))}
+                aria-label={`Retirer ${exc}`}
+              >
+                {exc} ×
+              </Badge>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Input
+            value={exclusionInput}
+            onChange={(e) => setExclusionInput(e.target.value)}
+            placeholder="Ex: Intern, Stagiaire, Junior..."
+            className="flex-1 h-9 text-sm rounded-lg"
+            onKeyDown={(e) => e.key === 'Enter' && addExclusion()}
+          />
+          <Button variant="outline" onClick={addExclusion} disabled={!exclusionInput.trim()} className="h-9 w-9 p-0 rounded-lg">
             <Plus className="w-4 h-4" />
           </Button>
         </div>
