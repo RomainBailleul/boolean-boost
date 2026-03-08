@@ -12,8 +12,9 @@ import { generateBooleanQuery, type Platform } from '@/utils/queryGenerator';
 import { QUICK_TEMPLATES, type QuickTemplate } from '@/data/quickTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { trackQueryGenerated } from '@/hooks/useUsageTracking';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
-import { Zap, Rocket, User, LogOut } from 'lucide-react';
+import { Zap, Rocket, User, LogOut, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
