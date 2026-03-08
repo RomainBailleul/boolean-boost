@@ -25,8 +25,8 @@ describe("StepResult", () => {
     // Arrange / Act
     renderWithProviders(<StepResult {...defaultProps} />);
     // Assert
-    const textarea = screen.getByRole("textbox");
-    expect(textarea).toHaveValue(defaultProps.booleanQuery);
+    const textarea = screen.getByDisplayValue(defaultProps.booleanQuery);
+    expect(textarea).toBeInTheDocument();
   });
 
   it("should display selected count badge", () => {
