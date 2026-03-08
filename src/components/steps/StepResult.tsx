@@ -171,7 +171,7 @@ const StepResult: React.FC<StepResultProps> = ({
       </div>
 
       {/* Result card */}
-      <div className="glass-card rounded-xl p-4 sm:p-6">
+      <div ref={queryCardRef} className="glass-card rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             Votre requête Boolean
