@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import StepProgressBar from '@/components/StepProgressBar';
 import StepInput from '@/components/steps/StepInput';
 import StepSelect from '@/components/steps/StepSelect';
@@ -66,41 +67,67 @@ const BooleanGenerator = () => {
         <StepProgressBar currentStep={step} steps={STEPS} />
 
         {/* Steps */}
-        <div className="min-h-[400px]">
-          {step === 0 && (
-            <StepInput
-              mode={mode}
-              setMode={setMode}
-              inputValue={inputValue}
-              setInputValue={setInputValue}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              onNext={() => setStep(1)}
-            />
-          )}
+        <div className="min-h-[400px] relative">
+          <AnimatePresence mode="wait">
+            {step === 0 && (
+              <motion.div
+                key="step-0"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+              >
+                <StepInput
+                  mode={mode}
+                  setMode={setMode}
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  onNext={() => setStep(1)}
+                />
+              </motion.div>
+            )}
 
-          {step === 1 && (
-            <StepSelect
-              mode={mode}
-              inputValue={inputValue}
-              selectedCategory={selectedCategory}
-              selectedTitles={selectedTitles}
-              setSelectedTitles={setSelectedTitles}
-              customTitles={customTitles}
-              setCustomTitles={setCustomTitles}
-              onNext={() => setStep(2)}
-              onBack={() => setStep(0)}
-            />
-          )}
+            {step === 1 && (
+              <motion.div
+                key="step-1"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+              >
+                <StepSelect
+                  mode={mode}
+                  inputValue={inputValue}
+                  selectedCategory={selectedCategory}
+                  selectedTitles={selectedTitles}
+                  setSelectedTitles={setSelectedTitles}
+                  customTitles={customTitles}
+                  setCustomTitles={setCustomTitles}
+                  onNext={() => setStep(2)}
+                  onBack={() => setStep(0)}
+                />
+              </motion.div>
+            )}
 
-          {step === 2 && (
-            <StepResult
-              booleanQuery={booleanQuery}
-              selectedCount={selectedTitles.length}
-              onBack={() => setStep(1)}
-              onReset={reset}
-            />
-          )}
+            {step === 2 && (
+              <motion.div
+                key="step-2"
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 30 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+              >
+                <StepResult
+                  booleanQuery={booleanQuery}
+                  selectedCount={selectedTitles.length}
+                  onBack={() => setStep(1)}
+                  onReset={reset}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Footer */}
