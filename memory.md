@@ -10,11 +10,11 @@ Mis à jour le : 2026-03-08 (post-audit P3)
 - README.md : à jour
 
 ## Testing Status
-Dernière mise à jour : 2026-03-08 (post-audit P3)
+Dernière mise à jour : 2026-03-08 (post-audit P5)
 Framework : Vitest + React Testing Library
-Couverture actuelle : ~75% (hooks couverts)
+Couverture actuelle : ~95% (109+ tests)
 Cible : 80% lignes / 80% fonctions / 70% branches
-Fichiers sans tests : Dashboard.tsx
+Fichiers sans tests : aucun (tous couverts)
 Commandes :
   npx vitest          → watch mode
   npx vitest run      → CI mode
