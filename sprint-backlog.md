@@ -62,6 +62,19 @@ Généré le : 2026-03-08 (v3)
 - [x] P2-03 | Tests | Dashboard.tsx | Tests unitaires page Dashboard
 - [x] P2-04 | Performance | useDashboardStats.ts | Limite max itérations pagination
 
+## Sprint P6 — Post-audit 48h (issu de l'audit du 2026-03-08)
+
+### 🟡 P2 — Amélioration
+- [x] P2-01 | Documentation | testing-audit-2026-03-08.md | MAJ count tests + Dashboard
+- [x] P2-02 | Sécurité | parse-natural-query | Restreindre CORS au domaine de production
+
+### ✅ Complétés lors des sprints P3-P5
+- [x] Auth + Cloud queries + Dashboard analytics
+- [x] Multi-catégories, live preview, raccourcis clavier, mobile polish
+- [x] Pagination + indexes + INSERT policy fix
+- [x] 109+ tests unitaires (tous hooks + Dashboard)
+- [x] Documentation synchronisée (memory.md, sprint-backlog.md, security-backlog.md)
+
 ### ✅ Complétés lors du sprint P4
 - [x] P0-01 + P0-02 | Pagination + indexes usage_events
 - [x] P1-01 | Validation INSERT policy usage_events
