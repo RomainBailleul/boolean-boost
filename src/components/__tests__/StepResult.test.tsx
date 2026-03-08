@@ -7,6 +7,8 @@ import StepResult from "../steps/StepResult";
 const defaultProps = {
   booleanQuery: '"CMO" OR "Directeur Marketing" OR "Marketing Director"',
   selectedCount: 3,
+  platform: 'sales-navigator' as const,
+  setPlatform: vi.fn(),
   onBack: vi.fn(),
   onReset: vi.fn(),
 };

@@ -12,6 +12,10 @@ const defaultProps = {
   setSelectedTitles: vi.fn(),
   customTitles: [] as string[],
   setCustomTitles: vi.fn(),
+  exclusions: [] as string[],
+  setExclusions: vi.fn(),
+  skills: [] as string[],
+  setSkills: vi.fn(),
   onNext: vi.fn(),
   onBack: vi.fn(),
 };
