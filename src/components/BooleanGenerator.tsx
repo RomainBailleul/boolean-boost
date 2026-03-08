@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import StepProgressBar from '@/components/StepProgressBar';
 import StepInput from '@/components/steps/StepInput';
 import StepSelect from '@/components/steps/StepSelect';
