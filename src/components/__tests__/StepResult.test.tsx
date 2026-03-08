@@ -12,9 +12,10 @@ const defaultProps = {
 };
 
 // Mock clipboard API
+const writeTextMock = vi.fn().mockResolvedValue(undefined);
 Object.assign(navigator, {
   clipboard: {
-    writeText: vi.fn().mockResolvedValue(undefined),
+    writeText: writeTextMock,
   },
 });
 
