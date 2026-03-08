@@ -144,6 +144,9 @@ const StepSelect: React.FC<StepSelectProps> = ({
               variant={selectedTitles.includes(title) ? 'default' : 'outline'}
               className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
               onClick={() => toggleTitle(title)}
+              role="checkbox"
+              aria-checked={selectedTitles.includes(title)}
+              aria-label={title}
             >
               {title}
             </Badge>

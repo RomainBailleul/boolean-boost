@@ -92,6 +92,8 @@ const StepInput: React.FC<StepInputProps> = ({
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
+                aria-pressed={selectedCategory === category}
+                aria-label={`Catégorie ${category.replace('_', ' ')}`}
                 className={`rounded-lg border p-3 sm:p-4 text-left transition-all hover:shadow-md ${
                   selectedCategory === category
                     ? 'border-primary bg-primary/8 ring-2 ring-primary/25 shadow-md'

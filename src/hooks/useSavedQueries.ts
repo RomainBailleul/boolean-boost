@@ -22,7 +22,11 @@ export const useSavedQueries = () => {
 
   const persist = (queries: SavedQuery[]) => {
     setSavedQueries(queries);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(queries));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(queries));
+    } catch {
+      /* localStorage quota exceeded — state updated in memory only */
+    }
   };
 
   const saveQuery = useCallback((label: string, query: string, titlesCount: number) => {

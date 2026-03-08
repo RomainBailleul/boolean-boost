@@ -24,12 +24,12 @@ const BooleanGenerator = () => {
   const booleanQuery = useMemo(() => {
     return generateBooleanQuery(enhancedJobTitlesData, {
       mode,
-      inputValue: '',
-      selectedCategory: '',
+      inputValue,
+      selectedCategory,
       selectedTitles,
-      customTitles: [],
+      customTitles,
     });
-  }, [selectedTitles, mode]);
+  }, [selectedTitles, customTitles, mode, inputValue, selectedCategory]);
 
   const reset = () => {
     setStep(0);

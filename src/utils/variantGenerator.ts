@@ -158,8 +158,11 @@ export const generateVariants = (input: string): string[] => {
   }
   // Also try generating masculine from feminine (reverse)
   for (const { masc, fem } of GENDER_PATTERNS) {
-    if (trimmed.includes(fem) && fem !== masc.source?.replace(/\\b/g, '')) {
-      const mascTitle = trimmed.replace(new RegExp(`\\b${fem}\\b`, 'g'), masc.source?.replace(/\\b/g, '').replace(/\\/g, '') || '');
+    // Extract the masculine word from the regex pattern cleanly
+    const mascWord = masc.source.replace(/\\b/g, '');
+    if (fem === mascWord) continue; // Skip invariable forms
+    if (trimmed.includes(fem)) {
+      const mascTitle = trimmed.replace(new RegExp(`\\b${fem}\\b`, 'g'), mascWord);
       if (mascTitle !== trimmed) {
         const genderVar = generateGenderVariant(mascTitle);
         if (genderVar) variants.add(genderVar);
