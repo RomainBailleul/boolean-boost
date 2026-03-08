@@ -22,7 +22,7 @@ Stack : Vitest + React Testing Library + TypeScript
 - [x] src/components/steps/StepInput.tsx — 14 tests (mode toggle, catégories, validation, keyboard)
 - [x] src/components/steps/StepSelect.tsx — 15 tests (badges, custom input, navigation, variants)
 - [x] src/components/steps/StepResult.tsx — 12 tests (copy, save, navigation, edge cases)
-- [ ] src/components/BooleanGenerator.tsx — non testé (composant page, orchestration)
+- [x] src/components/BooleanGenerator.tsx — 9 tests (flow complet free/category, navigation, reset, copy)
 - [ ] src/lib/utils.ts — non testé (trivial, cn wrapper)
 
 ## Commandes

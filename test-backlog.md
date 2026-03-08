@@ -24,5 +24,5 @@
 - [x] StepInput — mode toggle, category selection, input validation (14 tests)
 - [x] StepSelect — badge toggle, custom input, select all/deselect (15 tests)
 - [x] StepResult — copy to clipboard, save section, navigation (12 tests)
-- [ ] BooleanGenerator — step navigation, full flow integration
+- [x] BooleanGenerator — step navigation, full flow integration (9 tests)
 - [ ] utils/cn — trivial, faible valeur
