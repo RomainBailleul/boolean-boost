@@ -42,7 +42,7 @@ describe("StepResult", () => {
 
   it("should display character count", () => {
     renderWithProviders(<StepResult {...defaultProps} />);
-    expect(screen.getByText(`${defaultProps.booleanQuery.length} car.`)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`${defaultProps.booleanQuery.length}/\\d+ car\\.`))).toBeInTheDocument();
   });
 
   it("should render the header with LinkedIn icon", () => {
