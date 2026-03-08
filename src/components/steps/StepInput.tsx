@@ -47,6 +47,7 @@ const StepInput: React.FC<StepInputProps> = ({
         </button>
         <button
           onClick={() => setMode('category')}
+          aria-pressed={mode === 'category'}
           className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
             mode === 'category'
               ? 'ring-2 ring-primary border-primary/40'
