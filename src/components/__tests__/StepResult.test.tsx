@@ -61,7 +61,7 @@ describe("StepResult", () => {
     const user = userEvent.setup();
     renderWithProviders(<StepResult {...defaultProps} />);
     await user.click(screen.getByRole("button", { name: /copier la requête/i }));
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(defaultProps.booleanQuery);
+    expect(writeTextMock).toHaveBeenCalledWith(defaultProps.booleanQuery);
   });
 
   // ─── Save section ──────────────────────────────────────────
