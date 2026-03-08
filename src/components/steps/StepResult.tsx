@@ -7,6 +7,7 @@ import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTri
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
+import { fireConfetti } from '@/utils/confetti';
 
 interface StepResultProps {
   booleanQuery: string;
@@ -80,6 +81,7 @@ const StepResult: React.FC<StepResultProps> = ({
     try {
       await navigator.clipboard.writeText(text || booleanQuery);
       setCopied(true);
+      fireConfetti();
       toast({ title: "Copié !", description: "Requête copiée dans le presse-papier." });
       setTimeout(() => setCopied(false), 2000);
     } catch {
