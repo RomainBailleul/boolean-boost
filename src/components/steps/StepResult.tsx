@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2, Image, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
@@ -35,6 +35,41 @@ const StepResult: React.FC<StepResultProps> = ({
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
   const { savedQueries, saveQuery, deleteQuery } = useSavedQueries();
+  const queryCardRef = useRef<HTMLDivElement>(null);
+
+  const exportAsPng = useCallback(async () => {
+    if (!queryCardRef.current) return;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(queryCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      const link = document.createElement('a');
+      link.download = 'boolean-boost-query.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast({ title: 'PNG exporté !', description: 'Image téléchargée.' });
+    } catch {
+      toast({ title: 'Erreur', description: "Impossible d'exporter en PNG.", variant: 'destructive' });
+    }
+  }, [toast]);
+
+  const exportAsPdf = useCallback(async () => {
+    if (!queryCardRef.current) return;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      const canvas = await html2canvas(queryCardRef.current, { backgroundColor: '#ffffff', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save('boolean-boost-query.pdf');
+      toast({ title: 'PDF exporté !', description: 'Document téléchargé.' });
+    } catch {
+      toast({ title: 'Erreur', description: "Impossible d'exporter en PDF.", variant: 'destructive' });
+    }
+  }, [toast]);
 
   const limit = PLATFORM_LIMITS[platform];
   const queryLength = booleanQuery.length;
@@ -136,7 +171,7 @@ const StepResult: React.FC<StepResultProps> = ({
       </div>
 
       {/* Result card */}
-      <div className="glass-card rounded-xl p-4 sm:p-6">
+      <div ref={queryCardRef} className="glass-card rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             Votre requête Boolean
@@ -217,7 +252,24 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       </div>
 
-      {/* Save card */}
+      {/* Export buttons */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <Download className="w-4 h-4 text-primary" />
+          Exporter la requête
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" onClick={exportAsPng} className="rounded-lg h-9 text-xs font-medium">
+            <Image className="w-3.5 h-3.5 mr-1.5" />
+            Exporter en PNG
+          </Button>
+          <Button variant="outline" onClick={exportAsPdf} className="rounded-lg h-9 text-xs font-medium">
+            <FileText className="w-3.5 h-3.5 mr-1.5" />
+            Exporter en PDF
+          </Button>
+        </div>
+      </div>
+
       <div className="glass-card rounded-xl p-4 sm:p-5">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
           <Bookmark className="w-4 h-4 text-primary" />
