@@ -3,9 +3,9 @@ Date : 2026-03-08
 Stack : Vitest + React Testing Library + TypeScript
 
 ## Couverture actuelle estimée
-- Fichiers testés : 9 / 10 fichiers source
+- Fichiers testés : 10 / 10 fichiers source
 - Couverture lignes estimée : ~95%
-- Tests générés : 109 cas de test
+- Tests générés : 109+ cas de test
 
 ## Fichiers testés
 
