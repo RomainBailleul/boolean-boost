@@ -25,4 +25,4 @@ Généré le : 2026-03-08 (v2)
 - [x] P2-09 | useSavedQueries.ts | Corriger stale closure dans saveQuery
 - [x] P2-10 | useJobTitleSuggestions.ts | Mémoiser le flat array des titres
 - [x] P2-11 | StepResult.tsx | Bloquer Enter sur save si requête vide
-- [ ] P2-06 | index.html | Remplacer OG image par une image branded (action manuelle)
+- [x] P2-06 | index.html | Remplacer OG image par une image branded
