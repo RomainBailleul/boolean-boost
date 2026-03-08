@@ -50,6 +50,6 @@ Généré le : 2026-03-08 (v3)
 
 ### 🟡 P2 — Amélioration
 - [x] P2-01 | Tests | useAuth, useKeyboardShortcuts, useDashboardStats, useUsageTracking | Tests unitaires
-- [ ] P2-02 | Tests | useSavedQueries | Tests mode cloud
+- [x] P2-02 | Tests | useSavedQueries | Tests mode cloud (5 tests)
 - [x] P2-03 | Performance | App.tsx | Lazy-load Dashboard
 - [x] P2-04 | UX | useDashboardStats | Fix dépendance user → user?.id
