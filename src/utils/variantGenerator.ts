@@ -87,7 +87,8 @@ function generateGenderVariant(title: string): string | null {
   let femTitle = title;
   let changed = false;
   for (const { masc, fem } of GENDER_PATTERNS) {
-    const newTitle = femTitle.replace(masc, fem);
+    const regex = new RegExp(`\\b${masc}\\b`, 'g');
+    const newTitle = femTitle.replace(regex, fem);
     if (newTitle !== femTitle) {
       femTitle = newTitle;
       changed = true;
