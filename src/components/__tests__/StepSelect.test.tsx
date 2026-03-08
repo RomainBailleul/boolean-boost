@@ -7,7 +7,7 @@ import StepSelect from "../steps/StepSelect";
 const defaultProps = {
   mode: "category" as const,
   inputValue: "",
-  selectedCategory: "marketing",
+  selectedCategories: ["marketing"],
   selectedTitles: [] as string[],
   setSelectedTitles: vi.fn(),
   customTitles: [] as string[],
@@ -18,13 +18,13 @@ const defaultProps = {
   setSkills: vi.fn(),
   seniority: '' as const,
   setSeniority: vi.fn(),
+  platform: 'sales-navigator' as const,
+  location: '',
   onNext: vi.fn(),
   onBack: vi.fn(),
 };
 
 describe("StepSelect", () => {
-  // ─── Rendering ──────────────────────────────────────────────
-
   it("should render title section", () => {
     renderWithProviders(<StepSelect {...defaultProps} />);
     expect(screen.getByText("Titres")).toBeInTheDocument();
@@ -32,7 +32,6 @@ describe("StepSelect", () => {
 
   it("should render category titles as badges in category mode", () => {
     renderWithProviders(<StepSelect {...defaultProps} />);
-    // Marketing category has titles like CMO, etc.
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes.length).toBeGreaterThan(0);
   });
@@ -48,8 +47,6 @@ describe("StepSelect", () => {
     renderWithProviders(<StepSelect {...defaultProps} selectedTitles={["CMO"]} />);
     expect(screen.getByText(/1 sélectionné$/)).toBeInTheDocument();
   });
-
-  // ─── Select all / Deselect all ─────────────────────────────
 
   it("should call setSelectedTitles on Tout sélectionner click", async () => {
     const user = userEvent.setup();
@@ -71,8 +68,6 @@ describe("StepSelect", () => {
     expect(setSelectedTitles).toHaveBeenCalledWith([]);
   });
 
-  // ─── Badge toggle ──────────────────────────────────────────
-
   it("should call setSelectedTitles when clicking a badge", async () => {
     const user = userEvent.setup();
     const setSelectedTitles = vi.fn();
@@ -83,8 +78,6 @@ describe("StepSelect", () => {
     await user.click(badges[0]);
     expect(setSelectedTitles).toHaveBeenCalled();
   });
-
-  // ─── Custom title input ────────────────────────────────────
 
   it("should render custom title input", () => {
     renderWithProviders(<StepSelect {...defaultProps} />);
@@ -107,8 +100,6 @@ describe("StepSelect", () => {
     expect(setCustomTitles).toHaveBeenCalled();
     expect(setSelectedTitles).toHaveBeenCalled();
   });
-
-  // ─── Navigation buttons ────────────────────────────────────
 
   it("should call onBack when clicking Retour", async () => {
     const user = userEvent.setup();
@@ -138,15 +129,13 @@ describe("StepSelect", () => {
     expect(onNext).toHaveBeenCalledOnce();
   });
 
-  // ─── Free mode with variants ───────────────────────────────
-
   it("should show auto-generated variants section in free mode", () => {
     renderWithProviders(
       <StepSelect
         {...defaultProps}
         mode="free"
         inputValue="DRH"
-        selectedCategory=""
+        selectedCategories={[]}
       />
     );
     expect(screen.getByText(/variantes auto-générées/i)).toBeInTheDocument();
@@ -158,7 +147,7 @@ describe("StepSelect", () => {
         {...defaultProps}
         mode="free"
         inputValue="DRH"
-        selectedCategory=""
+        selectedCategories={[]}
       />
     );
     expect(screen.getByText("Suggestions")).toBeInTheDocument();
