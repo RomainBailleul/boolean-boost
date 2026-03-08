@@ -16,6 +16,8 @@ const defaultProps = {
   setExclusions: vi.fn(),
   skills: [] as string[],
   setSkills: vi.fn(),
+  seniority: '' as const,
+  setSeniority: vi.fn(),
   onNext: vi.fn(),
   onBack: vi.fn(),
 };
