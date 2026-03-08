@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Copy, Check, RotateCcw, Linkedin, Bookmark, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, RotateCcw, Linkedin, Bookmark, Trash2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 
