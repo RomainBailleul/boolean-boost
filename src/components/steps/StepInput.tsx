@@ -2,8 +2,6 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Search, Briefcase, ArrowRight } from 'lucide-react';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
 
@@ -17,6 +15,12 @@ interface StepInputProps {
   onNext: () => void;
 }
 
+const CATEGORY_ICONS: Record<string, string> = {
+  marketing: '📣', sales: '🤝', tech: '💻', finance: '📊',
+  hr: '👥', operations: '⚙️', leadership: '🏆', juridique: '⚖️',
+  qualite: '✅', achats: '🛒', supply_chain: '🔗', logistique: '🚛', immobilier: '🏢',
+};
+
 const StepInput: React.FC<StepInputProps> = ({
   mode, setMode, inputValue, setInputValue,
   selectedCategory, setSelectedCategory, onNext,
@@ -24,77 +28,94 @@ const StepInput: React.FC<StepInputProps> = ({
   const canProceed = mode === 'free' ? inputValue.trim().length > 0 : selectedCategory.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Mode toggle */}
-      <div className="flex gap-3">
-        <Button
-          variant={mode === 'free' ? 'default' : 'outline'}
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        <button
           onClick={() => setMode('free')}
-          className="flex-1"
+          className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
+            mode === 'free'
+              ? 'ring-2 ring-primary border-primary/40'
+              : 'hover:border-primary/30'
+          }`}
         >
-          <Search className="w-4 h-4 mr-2" />
-          Recherche libre
-        </Button>
-        <Button
-          variant={mode === 'category' ? 'default' : 'outline'}
+          <Search className={`w-5 h-5 mx-auto mb-1.5 ${mode === 'free' ? 'text-primary' : 'text-muted-foreground'}`} />
+          <span className={`text-sm font-semibold ${mode === 'free' ? 'text-foreground' : 'text-muted-foreground'}`}>
+            Recherche libre
+          </span>
+        </button>
+        <button
           onClick={() => setMode('category')}
-          className="flex-1"
+          className={`glass-card rounded-xl p-3 sm:p-4 text-center transition-all ${
+            mode === 'category'
+              ? 'ring-2 ring-primary border-primary/40'
+              : 'hover:border-primary/30'
+          }`}
         >
-          <Briefcase className="w-4 h-4 mr-2" />
-          Arborescence métier
-        </Button>
+          <Briefcase className={`w-5 h-5 mx-auto mb-1.5 ${mode === 'category' ? 'text-primary' : 'text-muted-foreground'}`} />
+          <span className={`text-sm font-semibold ${mode === 'category' ? 'text-foreground' : 'text-muted-foreground'}`}>
+            Par métier
+          </span>
+        </button>
       </div>
 
       {mode === 'free' ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quel poste recherchez-vous ?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Label htmlFor="job-input" className="text-sm text-muted-foreground">
-              Saisissez un intitulé, un acronyme ou un mot-clé
-            </Label>
-            <Input
-              id="job-input"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ex: CMO, Directeur Marketing, Head of Sales..."
-              className="mt-2 text-base"
-              autoFocus
-              onKeyDown={(e) => e.key === 'Enter' && canProceed && onNext()}
-            />
-          </CardContent>
-        </Card>
+        <div className="glass-card rounded-xl p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-bold text-foreground mb-1">
+            Quel poste recherchez-vous ?
+          </h2>
+          <Label htmlFor="job-input" className="text-xs text-muted-foreground">
+            Intitulé, acronyme ou mot-clé
+          </Label>
+          <Input
+            id="job-input"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Ex: CMO, DRH, Head of Sales..."
+            className="mt-3 text-base h-12 sm:h-14 rounded-lg border-border bg-background/80 focus:ring-primary"
+            autoFocus
+            onKeyDown={(e) => e.key === 'Enter' && canProceed && onNext()}
+          />
+          <p className="text-[11px] text-muted-foreground mt-2">
+            Les variantes FR/EN, genres et acronymes seront générés automatiquement
+          </p>
+        </div>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Choisissez une famille métier</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {Object.keys(enhancedJobTitlesData).map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`rounded-lg border p-4 text-left transition-all hover:shadow-md ${
-                    selectedCategory === category
-                      ? 'border-accent bg-accent/10 ring-2 ring-accent/30'
-                      : 'border-border bg-card hover:border-accent/40'
-                  }`}
-                >
-                  <div className="font-semibold capitalize text-card-foreground">{category}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {enhancedJobTitlesData[category as keyof typeof enhancedJobTitlesData].length} titres
-                  </div>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="glass-card rounded-xl p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-bold text-foreground mb-3">
+            Choisissez une famille métier
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+            {Object.keys(enhancedJobTitlesData).map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`rounded-lg border p-3 sm:p-4 text-left transition-all hover:shadow-md ${
+                  selectedCategory === category
+                    ? 'border-primary bg-primary/8 ring-2 ring-primary/25 shadow-md'
+                    : 'border-border bg-card hover:border-primary/30'
+                }`}
+              >
+                <span className="text-lg sm:text-xl">{CATEGORY_ICONS[category] || '📁'}</span>
+                <div className="font-semibold capitalize text-card-foreground text-xs sm:text-sm mt-1 leading-tight">
+                  {category.replace('_', ' ')}
+                </div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  {enhancedJobTitlesData[category as keyof typeof enhancedJobTitlesData].length} titres
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="flex justify-end">
-        <Button onClick={onNext} disabled={!canProceed} size="lg">
+        <Button
+          onClick={onNext}
+          disabled={!canProceed}
+          size="lg"
+          className="glow-button rounded-xl h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-semibold"
+        >
           Suivant
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>

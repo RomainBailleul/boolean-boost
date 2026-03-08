@@ -5,6 +5,7 @@ import StepSelect from '@/components/steps/StepSelect';
 import StepResult from '@/components/steps/StepResult';
 import { generateBooleanQuery } from '@/utils/queryGenerator';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
+import { Zap } from 'lucide-react';
 
 const STEPS = [
   { label: 'Recherche', description: 'Saisissez un poste' },
@@ -40,15 +41,24 @@ const BooleanGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="min-h-screen bg-background dot-grid">
+      {/* Hero gradient bar */}
+      <div className="h-1.5 w-full" style={{ background: 'var(--gradient-hero)' }} />
+
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-3xl">
         {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Prospection B2B Master
+        <header className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <Zap className="w-3.5 h-3.5" />
+            Outil gratuit — +950 titres métiers
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3">
+            <span className="gradient-text">Boolean</span>{' '}
+            <span className="text-foreground">Boost</span>
           </h1>
-          <p className="text-muted-foreground">
-            Générez des requêtes boolean LinkedIn en 3 étapes
+          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+            Générez des requêtes boolean LinkedIn enrichies en{' '}
+            <span className="font-semibold text-foreground">3 étapes</span>
           </p>
         </header>
 
@@ -56,53 +66,56 @@ const BooleanGenerator = () => {
         <StepProgressBar currentStep={step} steps={STEPS} />
 
         {/* Steps */}
-        {step === 0 && (
-          <StepInput
-            mode={mode}
-            setMode={setMode}
-            inputValue={inputValue}
-            setInputValue={setInputValue}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            onNext={() => setStep(1)}
-          />
-        )}
+        <div className="min-h-[400px]">
+          {step === 0 && (
+            <StepInput
+              mode={mode}
+              setMode={setMode}
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              onNext={() => setStep(1)}
+            />
+          )}
 
-        {step === 1 && (
-          <StepSelect
-            mode={mode}
-            inputValue={inputValue}
-            selectedCategory={selectedCategory}
-            selectedTitles={selectedTitles}
-            setSelectedTitles={setSelectedTitles}
-            customTitles={customTitles}
-            setCustomTitles={setCustomTitles}
-            onNext={() => setStep(2)}
-            onBack={() => setStep(0)}
-          />
-        )}
+          {step === 1 && (
+            <StepSelect
+              mode={mode}
+              inputValue={inputValue}
+              selectedCategory={selectedCategory}
+              selectedTitles={selectedTitles}
+              setSelectedTitles={setSelectedTitles}
+              customTitles={customTitles}
+              setCustomTitles={setCustomTitles}
+              onNext={() => setStep(2)}
+              onBack={() => setStep(0)}
+            />
+          )}
 
-        {step === 2 && (
-          <StepResult
-            booleanQuery={booleanQuery}
-            selectedCount={selectedTitles.length}
-            onBack={() => setStep(1)}
-            onReset={reset}
-          />
-        )}
+          {step === 2 && (
+            <StepResult
+              booleanQuery={booleanQuery}
+              selectedCount={selectedTitles.length}
+              onBack={() => setStep(1)}
+              onReset={reset}
+            />
+          )}
+        </div>
 
         {/* Footer */}
-        <footer className="mt-16 text-center border-t border-border pt-8">
-          <p className="text-sm text-muted-foreground">
-            Made by{' '}
+        <footer className="mt-12 sm:mt-16 text-center border-t border-border pt-6 pb-4">
+          <p className="text-xs text-muted-foreground">
+            Créé par{' '}
             <a
               href="https://la-mine.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:underline"
+              className="font-semibold text-primary hover:underline underline-offset-2"
             >
               La‑Mine.io
             </a>
+            {' '}· Outil 100% gratuit
           </p>
         </footer>
       </div>

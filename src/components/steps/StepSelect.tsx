@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, Plus, Sparkles } from 'lucide-react';
 import { useJobTitleSuggestions } from '@/hooks/useJobTitleSuggestions';
@@ -28,35 +27,26 @@ const StepSelect: React.FC<StepSelectProps> = ({
 }) => {
   const [customInput, setCustomInput] = React.useState('');
   const suggestions = useJobTitleSuggestions(inputValue, enhancedJobTitlesData, 20);
-
-  // Auto-generated variants from input
   const autoVariants = useMemo(() => generateVariants(inputValue), [inputValue]);
 
-  // In category mode, show all titles from selected category
   const categoryTitles = mode === 'category' && selectedCategory
     ? enhancedJobTitlesData[selectedCategory as keyof typeof enhancedJobTitlesData] || []
     : [];
 
-  // Merge: auto variants first, then DB suggestions (deduplicated)
   const availableTitles = useMemo(() => {
     if (mode === 'category') return categoryTitles;
     const seen = new Set<string>();
     const result: string[] = [];
     for (const t of [...autoVariants, ...suggestions]) {
-      if (!seen.has(t)) {
-        seen.add(t);
-        result.push(t);
-      }
+      if (!seen.has(t)) { seen.add(t); result.push(t); }
     }
     return result;
   }, [mode, autoVariants, suggestions, categoryTitles]);
 
-  // Auto-select generated variants on first render
   const prevInputRef = React.useRef('');
   React.useEffect(() => {
     if (inputValue !== prevInputRef.current && autoVariants.length > 0) {
       prevInputRef.current = inputValue;
-      // Pre-select auto-generated variants
       setSelectedTitles(prev => {
         const newSet = new Set(prev);
         autoVariants.forEach(v => newSet.add(v));
@@ -80,123 +70,111 @@ const StepSelect: React.FC<StepSelectProps> = ({
     }
   };
 
-  const selectAll = () => {
-    const all = [...new Set([...availableTitles, ...customTitles])];
-    setSelectedTitles(all);
-  };
-
+  const selectAll = () => setSelectedTitles([...new Set([...availableTitles, ...customTitles])]);
   const deselectAll = () => setSelectedTitles([]);
-
   const totalSelected = selectedTitles.length;
   const hasAutoVariants = mode === 'free' && autoVariants.length > 1;
 
   return (
-    <div className="space-y-6">
-      {/* Auto-generated variants section */}
+    <div className="space-y-4 sm:space-y-6">
+      {/* Auto-generated variants */}
       {hasAutoVariants && (
-        <Card className="border-accent/30 bg-accent/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-accent" />
-              Variantes générées automatiquement
-              <Badge variant="secondary" className="text-xs ml-auto">
-                {autoVariants.length} variantes
+        <div className="glass-card rounded-xl p-4 sm:p-5 border-primary/20 bg-primary/3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Variantes auto-générées
+            </h3>
+            <span className="text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              {autoVariants.length}
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mb-3">
+            FR/EN · genre · acronymes — cliquez pour retirer
+          </p>
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+            {autoVariants.map((title) => (
+              <Badge
+                key={`auto-${title}`}
+                variant={selectedTitles.includes(title) ? 'default' : 'outline'}
+                className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
+                onClick={() => toggleTitle(title)}
+              >
+                {title}
               </Badge>
-            </CardTitle>
-            <p className="text-xs text-muted-foreground">
-              FR/EN, genre, acronymes — cliquez pour ajouter/retirer
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {autoVariants.map((title) => (
-                <Badge
-                  key={`auto-${title}`}
-                  variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-                  className="cursor-pointer text-sm py-1.5 px-3 transition-all hover:shadow-sm"
-                  onClick={() => toggleTitle(title)}
-                >
-                  {title}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* DB suggestions / category titles */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">
-              {mode === 'free' ? 'Suggestions de la base' : 'Titres de la catégorie'}
-            </CardTitle>
-            <Badge variant="secondary" className="text-sm">
-              {totalSelected} sélectionné{totalSelected > 1 ? 's' : ''}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm sm:text-base font-bold text-foreground">
+            {mode === 'free' ? 'Suggestions' : 'Titres'}
+          </h3>
+          <span className="text-xs font-semibold text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
+            {totalSelected} sélectionné{totalSelected > 1 ? 's' : ''}
+          </span>
+        </div>
+
+        <div className="flex gap-2 mb-3">
+          <Button variant="outline" size="sm" onClick={selectAll} className="text-xs rounded-lg h-8">
+            Tout sélectionner
+          </Button>
+          <Button variant="outline" size="sm" onClick={deselectAll} className="text-xs rounded-lg h-8">
+            Tout désélectionner
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-[250px] sm:max-h-[300px] overflow-y-auto p-1 -m-1">
+          {(mode === 'free'
+            ? suggestions.filter(t => !autoVariants.includes(t))
+            : categoryTitles
+          ).map((title) => (
+            <Badge
+              key={title}
+              variant={selectedTitles.includes(title) ? 'default' : 'outline'}
+              className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
+              onClick={() => toggleTitle(title)}
+            >
+              {title}
             </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Bulk actions */}
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={selectAll}>
-              Tout sélectionner
-            </Button>
-            <Button variant="outline" size="sm" onClick={deselectAll}>
-              Tout désélectionner
-            </Button>
-          </div>
+          ))}
+          {customTitles.filter(t => !availableTitles.includes(t)).map((title) => (
+            <Badge
+              key={`custom-${title}`}
+              variant={selectedTitles.includes(title) ? 'default' : 'outline'}
+              className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg border-dashed"
+              onClick={() => toggleTitle(title)}
+            >
+              {title}
+            </Badge>
+          ))}
+        </div>
 
-          {/* Available titles (exclude auto variants in free mode to avoid duplication) */}
-          <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto p-1">
-            {(mode === 'free'
-              ? suggestions.filter(t => !autoVariants.includes(t))
-              : categoryTitles
-            ).map((title) => (
-              <Badge
-                key={title}
-                variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-                className="cursor-pointer text-sm py-1.5 px-3 transition-all hover:shadow-sm"
-                onClick={() => toggleTitle(title)}
-              >
-                {title}
-              </Badge>
-            ))}
-            {customTitles.filter(t => !availableTitles.includes(t)).map((title) => (
-              <Badge
-                key={`custom-${title}`}
-                variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-                className="cursor-pointer text-sm py-1.5 px-3 transition-all hover:shadow-sm border-dashed"
-                onClick={() => toggleTitle(title)}
-              >
-                {title}
-              </Badge>
-            ))}
-          </div>
+        {/* Custom input */}
+        <div className="flex gap-2 pt-3 mt-3 border-t border-border">
+          <Input
+            value={customInput}
+            onChange={(e) => setCustomInput(e.target.value)}
+            placeholder="Titre personnalisé..."
+            className="flex-1 h-9 text-sm rounded-lg"
+            onKeyDown={(e) => e.key === 'Enter' && addCustom()}
+          />
+          <Button variant="outline" onClick={addCustom} disabled={!customInput.trim()} className="h-9 w-9 p-0 rounded-lg">
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
 
-          {/* Add custom title */}
-          <div className="flex gap-2 pt-2 border-t border-border">
-            <Input
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-              placeholder="Ajouter un titre personnalisé..."
-              className="flex-1"
-              onKeyDown={(e) => e.key === 'Enter' && addCustom()}
-            />
-            <Button variant="outline" onClick={addCustom} disabled={!customInput.trim()}>
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} size="lg">
+      <div className="flex justify-between gap-3">
+        <Button variant="outline" onClick={onBack} size="lg" className="rounded-xl h-11 sm:h-12 px-5">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Retour
         </Button>
-        <Button onClick={onNext} disabled={totalSelected === 0} size="lg">
-          Générer la requête
+        <Button onClick={onNext} disabled={totalSelected === 0} size="lg" className="glow-button rounded-xl h-11 sm:h-12 px-5 sm:px-8 font-semibold">
+          Générer
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
