@@ -252,7 +252,24 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       </div>
 
-      {/* Save card */}
+      {/* Export buttons */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <Download className="w-4 h-4 text-primary" />
+          Exporter la requête
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" onClick={exportAsPng} className="rounded-lg h-9 text-xs font-medium">
+            <Image className="w-3.5 h-3.5 mr-1.5" />
+            Exporter en PNG
+          </Button>
+          <Button variant="outline" onClick={exportAsPdf} className="rounded-lg h-9 text-xs font-medium">
+            <FileText className="w-3.5 h-3.5 mr-1.5" />
+            Exporter en PDF
+          </Button>
+        </div>
+      </div>
+
       <div className="glass-card rounded-xl p-4 sm:p-5">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
           <Bookmark className="w-4 h-4 text-primary" />
