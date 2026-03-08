@@ -3,9 +3,9 @@ Date : 2026-03-08
 Stack : Vitest + React Testing Library + TypeScript
 
 ## Couverture actuelle estimée
-- Fichiers testés : 9 / 10 fichiers source
+- Fichiers testés : 10 / 10 fichiers source
 - Couverture lignes estimée : ~95%
-- Tests générés : 109 cas de test
+- Tests générés : 109+ cas de test
 
 ## Fichiers testés
 
@@ -23,6 +23,7 @@ Stack : Vitest + React Testing Library + TypeScript
 - [x] src/components/steps/StepSelect.tsx — 15 tests (badges, custom input, navigation, variants)
 - [x] src/components/steps/StepResult.tsx — 12 tests (copy, save, navigation, edge cases)
 - [x] src/components/BooleanGenerator.tsx — 9 tests (flow complet free/category, navigation, reset, copy)
+- [x] src/pages/Dashboard.tsx — 6 tests (KPI cards, charts, navigation, platforms, categories)
 - [ ] src/lib/utils.ts — non testé (trivial, cn wrapper)
 
 ## Commandes

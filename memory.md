@@ -40,5 +40,5 @@ Dette technique restante : Aucune
 ## Sprints actifs
 P0 ouverts : 0
 P1 ouverts : 0
-P2 ouverts : 0
-Dernier audit 24h : 2026-03-08 — score 9/10 — 🟢 Déployable
+P2 ouverts : 0 (tous résolus)
+Dernier audit 48h : 2026-03-08 — score 9/10 — 🟢 Déployable
