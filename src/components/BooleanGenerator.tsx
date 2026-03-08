@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import StepProgressBar from '@/components/StepProgressBar';
 import StepInput from '@/components/steps/StepInput';
 import type { NlpResult } from '@/components/steps/StepInput';
