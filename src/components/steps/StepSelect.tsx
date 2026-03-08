@@ -185,9 +185,13 @@ const StepSelect: React.FC<StepSelectProps> = ({
           </p>
           <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {autoVariants.map((title) => (
-              <Badge key={`auto-${title}`}
+            <Badge key={`auto-${title}`}
                 variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-                className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg"
+                className={`cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg transition-all duration-200 hover:shadow-sm ${
+                  selectedTitles.includes(title)
+                    ? 'hover:scale-105 active:scale-95'
+                    : 'hover:scale-105 active:scale-95 hover:border-primary/40'
+                }`}
                 onClick={() => toggleTitle(title)} role="checkbox"
                 aria-checked={selectedTitles.includes(title)} aria-label={title}>
                 {title}
