@@ -112,6 +112,34 @@ const StepInput: React.FC<StepInputProps> = ({
             </>
           )}
         </Button>
+
+        {/* Skeleton loader during NLP analysis */}
+        {nlpLoading && (
+          <div className="mt-4 space-y-3 animate-fade-in">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Extraction des critères…
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Skeleton className="h-3 w-24" />
+              <div className="flex gap-2">
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-14 rounded-full" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Separator */}

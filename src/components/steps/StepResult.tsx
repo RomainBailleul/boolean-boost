@@ -81,6 +81,7 @@ const StepResult: React.FC<StepResultProps> = ({
     try {
       await navigator.clipboard.writeText(text || booleanQuery);
       setCopied(true);
+      fireConfetti();
       toast({ title: "Copié !", description: "Requête copiée dans le presse-papier." });
       setTimeout(() => setCopied(false), 2000);
     } catch {

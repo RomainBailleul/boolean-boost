@@ -233,7 +233,11 @@ const StepSelect: React.FC<StepSelectProps> = ({
           ))}
           {customTitles.filter(t => !availableTitles.includes(t)).map((title) => (
             <Badge key={`custom-${title}`} variant={selectedTitles.includes(title) ? 'default' : 'outline'}
-              className="cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 transition-all hover:shadow-sm rounded-lg border-dashed"
+              className={`cursor-pointer text-xs sm:text-sm py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg border-dashed transition-all duration-200 hover:shadow-sm ${
+                selectedTitles.includes(title)
+                  ? 'hover:scale-105 active:scale-95'
+                  : 'hover:scale-105 active:scale-95 hover:border-primary/40'
+              }`}
               onClick={() => toggleTitle(title)} role="checkbox"
               aria-checked={selectedTitles.includes(title)} aria-label={title}>
               {title}
