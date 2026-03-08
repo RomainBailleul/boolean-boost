@@ -8,6 +8,7 @@ export interface QueryOptions {
   mode: 'free' | 'category';
   inputValue?: string;
   selectedCategory?: string;
+  selectedCategories?: string[];
   selectedTitles?: string[];
   customTitles?: string[];
   exclusions?: string[];
