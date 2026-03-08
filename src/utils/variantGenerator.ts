@@ -26,23 +26,23 @@ const ACRONYM_MAP: Record<string, { fr_m: string; fr_f: string; en: string[] }> 
   'cso': { fr_m: 'Directeur de la Stratégie', fr_f: 'Directrice de la Stratégie', en: ['Chief Strategy Officer', 'Head of Strategy', 'VP Strategy'] },
 };
 
-// Patterns de titres FR avec genre masculin/féminin
-const GENDER_PATTERNS: { masc: RegExp; fem: string }[] = [
-  { masc: /\bDirecteur\b/g, fem: 'Directrice' },
-  { masc: /\bPrésident\b/g, fem: 'Présidente' },
-  { masc: /\bResponsable\b/g, fem: 'Responsable' }, // invariable
-  { masc: /\bChef\b/g, fem: 'Cheffe' },
-  { masc: /\bManager\b/g, fem: 'Manager' }, // invariable
-  { masc: /\bCoordinateur\b/g, fem: 'Coordinatrice' },
-  { masc: /\bConsultant\b/g, fem: 'Consultante' },
-  { masc: /\bAnalyste\b/g, fem: 'Analyste' }, // invariable
-  { masc: /\bIngénieur\b/g, fem: 'Ingénieure' },
-  { masc: /\bChargé\b/g, fem: 'Chargée' },
-  { masc: /\bAssistant\b/g, fem: 'Assistante' },
-  { masc: /\bAdjoint\b/g, fem: 'Adjointe' },
-  { masc: /\bAttaché\b/g, fem: 'Attachée' },
-  { masc: /\bDélégué\b/g, fem: 'Déléguée' },
-  { masc: /\bAdministrateur\b/g, fem: 'Administratrice' },
+// Patterns de titres FR avec genre masculin/féminin (explicit string mapping)
+const GENDER_PATTERNS: { masc: string; fem: string }[] = [
+  { masc: 'Directeur', fem: 'Directrice' },
+  { masc: 'Président', fem: 'Présidente' },
+  { masc: 'Responsable', fem: 'Responsable' }, // invariable
+  { masc: 'Chef', fem: 'Cheffe' },
+  { masc: 'Manager', fem: 'Manager' }, // invariable
+  { masc: 'Coordinateur', fem: 'Coordinatrice' },
+  { masc: 'Consultant', fem: 'Consultante' },
+  { masc: 'Analyste', fem: 'Analyste' }, // invariable
+  { masc: 'Ingénieur', fem: 'Ingénieure' },
+  { masc: 'Chargé', fem: 'Chargée' },
+  { masc: 'Assistant', fem: 'Assistante' },
+  { masc: 'Adjoint', fem: 'Adjointe' },
+  { masc: 'Attaché', fem: 'Attachée' },
+  { masc: 'Délégué', fem: 'Déléguée' },
+  { masc: 'Administrateur', fem: 'Administratrice' },
 ];
 
 // FR ↔ EN translation pairs pour des termes courants
@@ -87,7 +87,8 @@ function generateGenderVariant(title: string): string | null {
   let femTitle = title;
   let changed = false;
   for (const { masc, fem } of GENDER_PATTERNS) {
-    const newTitle = femTitle.replace(masc, fem);
+    const regex = new RegExp(`\\b${masc}\\b`, 'g');
+    const newTitle = femTitle.replace(regex, fem);
     if (newTitle !== femTitle) {
       femTitle = newTitle;
       changed = true;
@@ -158,11 +159,9 @@ export const generateVariants = (input: string): string[] => {
   }
   // Also try generating masculine from feminine (reverse)
   for (const { masc, fem } of GENDER_PATTERNS) {
-    // Extract the masculine word from the regex pattern cleanly
-    const mascWord = masc.source.replace(/\\b/g, '');
-    if (fem === mascWord) continue; // Skip invariable forms
+    if (fem === masc) continue; // Skip invariable forms
     if (trimmed.includes(fem)) {
-      const mascTitle = trimmed.replace(new RegExp(`\\b${fem}\\b`, 'g'), mascWord);
+      const mascTitle = trimmed.replace(new RegExp(`\\b${fem}\\b`, 'g'), masc);
       if (mascTitle !== trimmed) {
         const genderVar = generateGenderVariant(mascTitle);
         if (genderVar) variants.add(genderVar);

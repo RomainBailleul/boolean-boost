@@ -37,13 +37,21 @@ export const useSavedQueries = () => {
       titlesCount,
       createdAt: new Date().toISOString(),
     };
-    persist([entry, ...savedQueries]);
+    setSavedQueries(prev => {
+      const updated = [entry, ...prev];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch { /* quota */ }
+      return updated;
+    });
     return entry;
-  }, [savedQueries]);
+  }, []);
 
   const deleteQuery = useCallback((id: string) => {
-    persist(savedQueries.filter(q => q.id !== id));
-  }, [savedQueries]);
+    setSavedQueries(prev => {
+      const updated = prev.filter(q => q.id !== id);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch { /* quota */ }
+      return updated;
+    });
+  }, []);
 
   return { savedQueries, saveQuery, deleteQuery };
 };

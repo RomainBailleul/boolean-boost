@@ -20,12 +20,12 @@ export const generateBooleanQuery = (
   let titles: string[] = [];
   
   if (options.mode === 'free') {
-    // Mode recherche libre
-    titles = [
-      options.inputValue || '',
-      ...(options.customTitles || []),
-      ...(options.selectedTitles || [])
-    ].filter(Boolean);
+    // Mode recherche libre — deduplicate
+    const uniqueTitles = new Set<string>();
+    [options.inputValue || '', ...(options.customTitles || []), ...(options.selectedTitles || [])]
+      .filter(Boolean)
+      .forEach(t => uniqueTitles.add(t));
+    titles = Array.from(uniqueTitles);
   } else {
     // Mode catégorie
     if (options.selectedCategory && jobTitlesData[options.selectedCategory]) {

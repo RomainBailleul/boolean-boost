@@ -124,7 +124,7 @@ const StepResult: React.FC<StepResultProps> = ({
             onChange={(e) => setSaveLabel(e.target.value)}
             placeholder="Nom (ex: Prospection CMO France)..."
             className="flex-1 h-9 text-sm rounded-lg"
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+            onKeyDown={(e) => e.key === 'Enter' && booleanQuery.trim() && handleSave()}
           />
           <Button
             onClick={handleSave}
@@ -182,7 +182,7 @@ const StepResult: React.FC<StepResultProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-7 w-7 p-0 rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                   onClick={() => copyToClipboard(sq.query)}
                   title="Copier"
                 >
@@ -191,7 +191,7 @@ const StepResult: React.FC<StepResultProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0 rounded-md opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                  className="h-7 w-7 p-0 rounded-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                   onClick={() => deleteQuery(sq.id)}
                   title="Supprimer"
                 >
