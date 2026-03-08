@@ -93,8 +93,8 @@ describe("StepResult", () => {
 
   it("should render correctly with empty query", () => {
     renderWithProviders(<StepResult {...defaultProps} booleanQuery="" selectedCount={0} />);
-    const textarea = screen.getByRole("textbox");
-    expect(textarea).toHaveValue("");
+    const textareas = screen.getAllByRole("textbox");
+    expect(textareas[0]).toHaveValue("");
     expect(screen.getByText("0 titres")).toBeInTheDocument();
   });
 
