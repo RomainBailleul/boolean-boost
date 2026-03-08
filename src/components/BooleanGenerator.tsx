@@ -220,7 +220,16 @@ const BooleanGenerator = () => {
                   skills={skills} setSkills={setSkills}
                   seniority={seniority} setSeniority={setSeniority}
                   platform={platform} location={location}
-                  onNext={() => setStep(2)} onBack={() => setStep(0)} />
+                  onNext={() => {
+                    setStep(2);
+                    trackQueryGenerated({
+                      categories: selectedCategories,
+                      platform,
+                      location,
+                      titlesCount: selectedTitles.length,
+                      mode,
+                    });
+                  }} onBack={() => setStep(0)} />
               </motion.div>
             )}
             {step === 2 && (
