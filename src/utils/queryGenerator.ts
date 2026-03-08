@@ -64,6 +64,11 @@ export const generateBooleanQuery = (
     query += ` AND (${skillPart})`;
   }
 
+  // AND location
+  if (location) {
+    query += ` AND "${location}"`;
+  }
+
   // NOT exclusions
   if (exclusions.length > 0) {
     const notPart = exclusions.map(e => `NOT "${e}"`).join(' ');
