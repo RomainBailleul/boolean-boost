@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap } from 'lucide-react';
+import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
@@ -13,6 +13,9 @@ interface StepResultProps {
   selectedCount: number;
   platform: Platform;
   setPlatform: (p: Platform) => void;
+  location: string;
+  setLocation: (loc: string) => void;
+  shareUrl: string;
   onBack: () => void;
   onReset: () => void;
 }
@@ -24,9 +27,10 @@ const PLATFORM_OPTIONS: { value: Platform; icon: React.ReactNode; label: string 
 ];
 
 const StepResult: React.FC<StepResultProps> = ({
-  booleanQuery, selectedCount, platform, setPlatform, onBack, onReset,
+  booleanQuery, selectedCount, platform, setPlatform, location, setLocation, shareUrl, onBack, onReset,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [saveLabel, setSaveLabel] = useState('');
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
@@ -114,6 +118,23 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       </div>
 
+      {/* Location */}
+      <div className="glass-card rounded-xl p-4 sm:p-5">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+          <MapPin className="w-4 h-4 text-primary" />
+          Localisation (optionnel)
+        </h3>
+        <Input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Ex: Paris, France, Île-de-France..."
+          className="h-9 text-sm rounded-lg"
+        />
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Sera ajouté en AND à la requête
+        </p>
+      </div>
+
       {/* Result card */}
       <div className="glass-card rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
@@ -169,13 +190,31 @@ const StepResult: React.FC<StepResultProps> = ({
           {copied ? 'Copié !' : 'Copier la requête'}
         </Button>
 
-        <p className="text-[11px] sm:text-xs text-muted-foreground text-center mt-3">
-          {platform === 'google-xray'
-            ? 'Collez dans la barre de recherche Google'
-            : platform === 'sales-navigator'
-              ? 'Collez dans le champ «\u00a0Titre\u00a0» de LinkedIn Sales Navigator'
-              : 'Collez dans la barre de recherche LinkedIn'}
-        </p>
+        <div className="flex gap-2 mt-3">
+          <p className="flex-1 text-[11px] sm:text-xs text-muted-foreground">
+            {platform === 'google-xray'
+              ? 'Collez dans la barre de recherche Google'
+              : platform === 'sales-navigator'
+                ? 'Collez dans le champ «\u00a0Titre\u00a0» de LinkedIn Sales Navigator'
+                : 'Collez dans la barre de recherche LinkedIn'}
+          </p>
+          {shareUrl && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 rounded-md text-[11px] px-2.5 shrink-0"
+              onClick={async () => {
+                await navigator.clipboard.writeText(shareUrl);
+                setLinkCopied(true);
+                toast({ title: "Lien copié !", description: "Partagez ce lien pour partager votre requête." });
+                setTimeout(() => setLinkCopied(false), 2000);
+              }}
+            >
+              {linkCopied ? <Check className="w-3 h-3 mr-1" /> : <Share2 className="w-3 h-3 mr-1" />}
+              {linkCopied ? 'Copié' : 'Partager'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Save card */}
