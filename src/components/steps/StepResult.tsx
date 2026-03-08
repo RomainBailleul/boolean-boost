@@ -35,6 +35,41 @@ const StepResult: React.FC<StepResultProps> = ({
   const [justSaved, setJustSaved] = useState(false);
   const { toast } = useToast();
   const { savedQueries, saveQuery, deleteQuery } = useSavedQueries();
+  const queryCardRef = useRef<HTMLDivElement>(null);
+
+  const exportAsPng = useCallback(async () => {
+    if (!queryCardRef.current) return;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(queryCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      const link = document.createElement('a');
+      link.download = 'boolean-boost-query.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast({ title: 'PNG exporté !', description: 'Image téléchargée.' });
+    } catch {
+      toast({ title: 'Erreur', description: "Impossible d'exporter en PNG.", variant: 'destructive' });
+    }
+  }, [toast]);
+
+  const exportAsPdf = useCallback(async () => {
+    if (!queryCardRef.current) return;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      const canvas = await html2canvas(queryCardRef.current, { backgroundColor: '#ffffff', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save('boolean-boost-query.pdf');
+      toast({ title: 'PDF exporté !', description: 'Document téléchargé.' });
+    } catch {
+      toast({ title: 'Erreur', description: "Impossible d'exporter en PDF.", variant: 'destructive' });
+    }
+  }, [toast]);
 
   const limit = PLATFORM_LIMITS[platform];
   const queryLength = booleanQuery.length;
