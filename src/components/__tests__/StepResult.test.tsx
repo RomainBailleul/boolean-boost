@@ -13,10 +13,10 @@ const defaultProps = {
 
 // Mock clipboard API
 const writeTextMock = vi.fn().mockResolvedValue(undefined);
-Object.assign(navigator, {
-  clipboard: {
-    writeText: writeTextMock,
-  },
+Object.defineProperty(navigator, "clipboard", {
+  value: { writeText: writeTextMock },
+  writable: true,
+  configurable: true,
 });
 
 describe("StepResult", () => {
