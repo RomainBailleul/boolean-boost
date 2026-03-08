@@ -7,6 +7,7 @@ import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTri
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
+import { fireConfetti } from '@/utils/confetti';
 
 interface StepResultProps {
   booleanQuery: string;
