@@ -229,7 +229,7 @@ const BooleanGenerator = () => {
               <Rocket className="w-4 h-4 text-primary" />
               <h2 className="text-sm font-bold text-foreground">Démarrage rapide</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div id="coachmark-templates" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {QUICK_TEMPLATES.map((tpl) => (
                 <button key={tpl.id} onClick={() => applyTemplate(tpl)}
                   className="glass-card rounded-lg border p-3 text-left transition-all hover:border-primary/40 hover:shadow-md group">
