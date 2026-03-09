@@ -2,3 +2,9 @@ project_id = "bhcopcurpzjieeyaireb"
 
 [functions.parse-natural-query]
 verify_jwt = false
+
+[functions.update-user-role]
+verify_jwt = false
+
+[functions.list-users]
+verify_jwt = false

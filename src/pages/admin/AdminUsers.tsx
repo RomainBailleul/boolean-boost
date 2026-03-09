@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Loader2 } from 'lucide-react';
+import { Users, Search, Shield, ShieldOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface UserRow {
   id: string;
@@ -22,16 +25,29 @@ interface UserRow {
   email_confirmed_at: string | null;
 }
 
+interface RoleMap {
+  [userId: string]: 'admin' | 'user';
+}
+
 const PER_PAGE = 20;
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [roles, setRoles] = useState<RoleMap>({});
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Confirmation modal state
+  const [pendingChange, setPendingChange] = useState<{
+    userId: string;
+    email: string;
+    newRole: 'admin' | 'user';
+  } | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -55,8 +71,24 @@ const AdminUsers: React.FC = () => {
       }
 
       const result = await res.json();
-      setUsers(result.users || []);
+      const fetchedUsers: UserRow[] = result.users || [];
+      setUsers(fetchedUsers);
       setTotal(result.total || 0);
+
+      // Fetch roles for these users
+      if (fetchedUsers.length > 0) {
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('user_id', fetchedUsers.map((u) => u.id));
+
+        const map: RoleMap = {};
+        fetchedUsers.forEach((u) => { map[u.id] = 'user'; });
+        rolesData?.forEach((r) => {
+          if (r.role === 'admin') map[r.user_id] = 'admin';
+        });
+        setRoles(map);
+      }
     } catch (err: any) {
       setError(err.message || 'Erreur lors du chargement');
     } finally {
@@ -74,16 +106,51 @@ const AdminUsers: React.FC = () => {
     setSearch(searchInput);
   };
 
+  const confirmRoleChange = async () => {
+    if (!pendingChange) return;
+    setUpdating(true);
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const url = `https://${projectId}.supabase.co/functions/v1/update-user-role`;
+      const session = (await supabase.auth.getSession()).data.session;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          target_user_id: pendingChange.userId,
+          new_role: pendingChange.newRole,
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || `Erreur ${res.status}`);
+
+      setRoles((prev) => ({ ...prev, [pendingChange.userId]: pendingChange.newRole }));
+      toast.success(
+        pendingChange.newRole === 'admin'
+          ? `${pendingChange.email} promu admin`
+          : `${pendingChange.email} rétrogradé en utilisateur`
+      );
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur lors du changement de rôle');
+    } finally {
+      setUpdating(false);
+      setPendingChange(null);
+    }
+  };
+
   const totalPages = Math.ceil(total / PER_PAGE);
 
   const formatDate = (d: string | null) => {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
     });
   };
 
@@ -110,22 +177,11 @@ const AdminUsers: React.FC = () => {
             className="pl-9"
           />
         </div>
-        <Button type="submit" variant="secondary" size="sm">
-          Rechercher
-        </Button>
+        <Button type="submit" variant="secondary" size="sm">Rechercher</Button>
         {search && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSearchInput('');
-              setSearch('');
-              setPage(1);
-            }}
-          >
-            Effacer
-          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={() => {
+            setSearchInput(''); setSearch(''); setPage(1);
+          }}>Effacer</Button>
         )}
       </form>
 
@@ -145,7 +201,7 @@ const AdminUsers: React.FC = () => {
                 <TableHead>Email</TableHead>
                 <TableHead className="hidden sm:table-cell">Inscrit le</TableHead>
                 <TableHead className="hidden md:table-cell">Dernière connexion</TableHead>
-                <TableHead className="hidden lg:table-cell">Email confirmé</TableHead>
+                <TableHead>Rôle</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,7 +211,7 @@ const AdminUsers: React.FC = () => {
                     <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                     <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
                     <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   </TableRow>
                 ))
               ) : users.length === 0 ? (
@@ -174,12 +230,43 @@ const AdminUsers: React.FC = () => {
                     <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                       {formatDate(u.last_sign_in_at)}
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {u.email_confirmed_at ? (
-                        <span className="text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5">Confirmé</span>
-                      ) : (
-                        <span className="text-xs bg-destructive/10 text-destructive rounded-full px-2 py-0.5">Non confirmé</span>
-                      )}
+                    <TableCell>
+                      <Select
+                        value={roles[u.id] || 'user'}
+                        onValueChange={(val) =>
+                          setPendingChange({
+                            userId: u.id,
+                            email: u.email,
+                            newRole: val as 'admin' | 'user',
+                          })
+                        }
+                      >
+                        <SelectTrigger className="w-[120px] h-8 text-xs">
+                          {roles[u.id] === 'admin' ? (
+                            <span className="flex items-center gap-1.5">
+                              <Shield className="w-3.5 h-3.5 text-primary" />
+                              Admin
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5">
+                              <ShieldOff className="w-3.5 h-3.5 text-muted-foreground" />
+                              User
+                            </span>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">
+                            <span className="flex items-center gap-1.5">
+                              <ShieldOff className="w-3.5 h-3.5" /> User
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="admin">
+                            <span className="flex items-center gap-1.5">
+                              <Shield className="w-3.5 h-3.5" /> Admin
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                   </TableRow>
                 ))
@@ -192,27 +279,35 @@ const AdminUsers: React.FC = () => {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
             Précédent
           </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
+          <span className="text-sm text-muted-foreground">Page {page} / {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
             Suivant
           </Button>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <AlertDialog open={!!pendingChange} onOpenChange={(open) => !open && setPendingChange(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer le changement de rôle</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingChange?.newRole === 'admin'
+                ? `Promouvoir ${pendingChange?.email} en admin ? Cette personne aura accès au panel d'administration.`
+                : `Rétrograder ${pendingChange?.email} en utilisateur standard ? Cette personne perdra l'accès au panel admin.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updating}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRoleChange} disabled={updating}>
+              {updating ? 'En cours…' : 'Confirmer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
