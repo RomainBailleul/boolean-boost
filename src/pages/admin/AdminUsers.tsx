@@ -37,14 +37,6 @@ const AdminUsers: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('list-users', {
-        body: null,
-        method: 'GET',
-        headers: {},
-      });
-
-      // supabase.functions.invoke doesn't support query params easily,
-      // so we'll use a workaround with the full URL
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const url = `https://${projectId}.supabase.co/functions/v1/list-users?page=${page}&per_page=${PER_PAGE}&search=${encodeURIComponent(search)}`;
       const session = (await supabase.auth.getSession()).data.session;
