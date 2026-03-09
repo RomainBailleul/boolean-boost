@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
 import { fireConfetti } from '@/utils/confetti';
+import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 interface StepResultProps {
