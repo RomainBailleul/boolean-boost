@@ -60,6 +60,7 @@ const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user);
   const stats = useDashboardStats(user);
+  const { entries: recentHistory, loading: historyLoading } = useRecentHistory(user);
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
