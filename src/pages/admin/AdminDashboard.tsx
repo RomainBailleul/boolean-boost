@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Users, Bookmark, Layers, Download, UserCheck, UserPlus } from 'lucide-react';
+import { BarChart3, Users, Bookmark, Layers, Download, UserCheck, UserPlus, SmilePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { downloadCsv } from '@/utils/csvExport';
