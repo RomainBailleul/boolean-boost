@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Users, Bookmark, Layers, Download, UserCheck, UserPlus } from 'lucide-react';
+import { BarChart3, Users, Bookmark, Layers, Download, UserCheck, UserPlus, SmilePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { downloadCsv } from '@/utils/csvExport';
@@ -32,11 +32,19 @@ const StatCard: React.FC<{
   </Card>
 );
 
+interface FeedbackStats {
+  total: number;
+  perfect: number;
+  useful: number;
+  not_useful: number;
+}
+
 interface AdminStats {
   totalUsers: number;
   activeToday: number;
   weeklySignups: Array<{ week: string; count: number }>;
   loading: boolean;
+  feedback: FeedbackStats;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -47,6 +55,7 @@ const AdminDashboard: React.FC = () => {
     activeToday: 0,
     weeklySignups: [],
     loading: true,
+    feedback: { total: 0, perfect: 0, useful: 0, not_useful: 0 },
   });
 
   useEffect(() => {
@@ -64,6 +73,21 @@ const AdminDashboard: React.FC = () => {
           },
         });
 
+        // Fetch feedback stats
+        const { data: feedbackData } = await supabase
+          .from('feedback_responses' as any)
+          .select('rating');
+
+        const fb: FeedbackStats = { total: 0, perfect: 0, useful: 0, not_useful: 0 };
+        if (feedbackData) {
+          fb.total = feedbackData.length;
+          feedbackData.forEach((r: any) => {
+            if (r.rating === 'perfect') fb.perfect++;
+            else if (r.rating === 'useful') fb.useful++;
+            else if (r.rating === 'not_useful') fb.not_useful++;
+          });
+        }
+
         if (res.ok) {
           const data = await res.json();
           setAdminStats({
@@ -71,9 +95,10 @@ const AdminDashboard: React.FC = () => {
             activeToday: data.activeToday || 0,
             weeklySignups: data.weeklySignups || [],
             loading: false,
+            feedback: fb,
           });
         } else {
-          setAdminStats((prev) => ({ ...prev, loading: false }));
+          setAdminStats((prev) => ({ ...prev, loading: false, feedback: fb }));
         }
       } catch {
         setAdminStats((prev) => ({ ...prev, loading: false }));
@@ -126,6 +151,46 @@ const AdminDashboard: React.FC = () => {
         <StatCard icon={<UserPlus className="w-5 h-5" />} label="Titres utilisés" value={stats.totalTitles.toLocaleString()} loading={stats.loading} />
         <StatCard icon={<Layers className="w-5 h-5" />} label="Mes requêtes" value={stats.myQueries} loading={stats.loading} />
         <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={stats.mySavedQueries} loading={stats.loading} />
+      </motion.div>
+
+      {/* Satisfaction KPI */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="mb-8"
+      >
+        <Card className="glass-card border-border/50">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-4">
+              <SmilePlus className="w-4 h-4 text-primary" />
+              Score satisfaction ({adminStats.feedback.total} réponses)
+            </h2>
+            {adminStats.loading ? (
+              <Skeleton className="h-12 w-full" />
+            ) : adminStats.feedback.total > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">🤩</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.perfect}</p>
+                  <p className="text-[10px] text-muted-foreground">Exactement</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">🙂</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.useful}</p>
+                  <p className="text-[10px] text-muted-foreground">Utile</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">😐</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.not_useful}</p>
+                  <p className="text-[10px] text-muted-foreground">Pas vraiment</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">Aucun feedback reçu</p>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Daily activity chart */}

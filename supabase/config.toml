@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.admin-stats]
 verify_jwt = false
+
+[functions.query-count]
+verify_jwt = false

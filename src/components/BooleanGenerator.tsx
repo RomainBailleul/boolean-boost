@@ -14,8 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { trackQueryGenerated } from '@/hooks/useUsageTracking';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
-import { Zap, Rocket, User, LogOut, BarChart3 } from 'lucide-react';
+import { Zap, Rocket, User, LogOut, BarChart3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export type Seniority = '' | 'junior' | 'mid' | 'senior' | 'vp' | 'c-level' | 'director';
@@ -45,6 +46,18 @@ const BooleanGenerator = () => {
 
   // Ref for copy action in shortcuts
   const copyRef = useRef<(() => void) | null>(null);
+
+  // P0-01: Community query count
+  const [communityCount, setCommunityCount] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('query-count');
+        if (!error && data?.count != null) setCommunityCount(data.count);
+      } catch {}
+    };
+    fetchCount();
+  }, []);
 
   useEffect(() => {
     const q = searchParams.get('q');
@@ -170,10 +183,36 @@ const BooleanGenerator = () => {
             )}
             <ThemeToggle />
           </div>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-2">
             <Zap className="w-3.5 h-3.5" />
             Outil gratuit — +950 titres métiers
           </div>
+          {communityCount !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground mb-4"
+            >
+              <Users className="w-3 h-3" />
+              <span>
+                <motion.span
+                  key={communityCount}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="font-semibold text-foreground"
+                >
+                  {communityCount.toLocaleString('fr-FR')}
+                </motion.span>
+                {' '}requêtes générées par la communauté
+              </span>
+            </motion.div>
+          )}
+          {communityCount === 0 && (
+            <p className="text-xs text-muted-foreground mb-4">
+              Rejoignez les premiers utilisateurs 🚀
+            </p>
+          )}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3">
             <span className="gradient-text">Boolean</span>{' '}
             <span className="text-foreground">Boost</span>

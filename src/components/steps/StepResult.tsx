@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
 import { fireConfetti } from '@/utils/confetti';
+import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 interface StepResultProps {
@@ -77,6 +79,24 @@ const StepResult: React.FC<StepResultProps> = ({
   const isOverLimit = queryLength > limit.limit;
   const isNearLimit = queryLength > limit.limit * 0.85 && !isOverLimit;
 
+  // P0-03: Micro-survey state
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [surveySubmitted, setSurveySubmitted] = useState(false);
+
+  const submitFeedback = useCallback(async (rating: string) => {
+    setSurveySubmitted(true);
+    sessionStorage.setItem('bb-survey-done', '1');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await supabase.from('feedback_responses' as any).insert({
+        user_id: session?.user?.id ?? null,
+        rating,
+        query_length: booleanQuery.length,
+        platform,
+      });
+    } catch {}
+  }, [booleanQuery, platform]);
+
   const copyToClipboard = useCallback(async (text?: string) => {
     try {
       await navigator.clipboard.writeText(text || booleanQuery);
@@ -84,6 +104,10 @@ const StepResult: React.FC<StepResultProps> = ({
       fireConfetti();
       toast({ title: "Copié !", description: "Requête copiée dans le presse-papier." });
       setTimeout(() => setCopied(false), 2000);
+      // Show survey once per session after copy
+      if (!sessionStorage.getItem('bb-survey-done') && !text) {
+        setTimeout(() => setShowSurvey(true), 1500);
+      }
     } catch {
       toast({ title: "Erreur", description: "Impossible de copier.", variant: "destructive" });
     }
@@ -257,6 +281,45 @@ const StepResult: React.FC<StepResultProps> = ({
             </Button>
           )}
         </div>
+
+        {/* P0-03: Micro-survey */}
+        <AnimatePresence>
+          {showSurvey && !surveySubmitted && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 p-3 rounded-lg border border-border bg-muted/30"
+            >
+              <p className="text-xs font-medium text-foreground mb-2">Cette requête vous sera utile ?</p>
+              <div className="flex gap-2">
+                {[
+                  { emoji: '😐', label: 'Pas vraiment', value: 'not_useful' },
+                  { emoji: '🙂', label: 'Utile', value: 'useful' },
+                  { emoji: '🤩', label: 'Exactement !', value: 'perfect' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => submitFeedback(opt.value)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-border bg-background hover:border-primary/40 hover:bg-primary/5 transition-all text-xs font-medium min-h-[44px]"
+                  >
+                    <span className="text-base">{opt.emoji}</span>
+                    <span className="hidden sm:inline">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+          {surveySubmitted && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-3 text-xs text-muted-foreground text-center"
+            >
+              Merci pour votre retour ! 🙏
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Export buttons */}
