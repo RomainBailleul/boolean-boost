@@ -286,7 +286,9 @@ const BooleanGenerator = () => {
                   skills={skills} setSkills={setSkills}
                   seniority={seniority} setSeniority={setSeniority}
                   platform={platform} location={location}
-                  onNext={() => {
+                  onNext={async () => {
+                    const allowed = await checkAndProceedToResult();
+                    if (!allowed) return;
                     setStep(2);
                     trackQueryGenerated({
                       categories: selectedCategories,
