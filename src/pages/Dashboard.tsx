@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
-import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe } from 'lucide-react';
+import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe, LogIn } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useUserRole } from '@/hooks/useUserRole';
+import AuthModal from '@/components/AuthModal';
 
 const COLORS = [
   'hsl(var(--primary))',
@@ -53,9 +54,10 @@ const StatCard: React.FC<{
 );
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user);
   const stats = useDashboardStats(user);
+  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background dot-grid">
@@ -73,6 +75,31 @@ const Dashboard = () => {
           </div>
           <ThemeToggle />
         </header>
+
+        {/* Empty state for unauthenticated users */}
+        {!authLoading && !user ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20 text-center"
+          >
+            <div className="rounded-2xl bg-primary/10 p-5 mb-6">
+              <BarChart3 className="w-10 h-10 text-primary" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-2">
+              Connectez-vous pour suivre vos requêtes et sauvegardes
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-md">
+              Accédez à vos statistiques personnelles, votre historique et vos requêtes sauvegardées en créant un compte gratuit.
+            </p>
+            <Button onClick={() => setAuthOpen(true)} className="glow-button rounded-xl h-11 px-6 font-semibold">
+              <LogIn className="w-4 h-4 mr-2" />
+              Se connecter
+            </Button>
+            <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+          </motion.div>
+        ) : (
+          <>
 
         {/* KPI Cards */}
         <motion.div
@@ -217,6 +244,9 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </motion.div>
+        )}
+
+          </>
         )}
 
         <footer className="mt-12 text-center border-t border-border pt-6 pb-4">

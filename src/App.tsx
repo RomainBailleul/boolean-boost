@@ -31,7 +31,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Suspense fallback={<Spinner />}><ProtectedRoute><Dashboard /></ProtectedRoute></Suspense>} />
+          <Route path="/dashboard" element={<Suspense fallback={<Spinner />}><Dashboard /></Suspense>} />
           <Route path="/reset-password" element={<Suspense fallback={<Spinner />}><ResetPassword /></Suspense>} />
 
           {/* Admin routes */}
