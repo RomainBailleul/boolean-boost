@@ -103,6 +103,6 @@ PMF (Shreya) : 26/40 | Growth (Marcus) : 17/35 | UX (Yuki) : 22/25
 ### 🟡 P2 — Différenciateurs (5 items, impact +8 pts)
 - [ ] P2-01 | Shreya | Community | Templates communautaires
 - [ ] P2-02 | Marcus | Monétisation | Freemium avec limites
-- [ ] P2-03 | Yuki | Onboarding | Coachmarks première visite
+- [x] P2-03 | Yuki | Onboarding | Coachmarks première visite
 - [ ] P2-04 | Marcus | Rétention | Digest hebdomadaire email
 - [ ] P2-05 | Yuki | Polish | Animation première copie
