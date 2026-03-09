@@ -18,6 +18,7 @@ import { Zap, Rocket, User, LogOut, BarChart3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import Coachmarks from '@/components/Coachmarks';
 
 export type Seniority = '' | 'junior' | 'mid' | 'senior' | 'vp' | 'c-level' | 'director';
 
@@ -229,7 +230,7 @@ const BooleanGenerator = () => {
               <Rocket className="w-4 h-4 text-primary" />
               <h2 className="text-sm font-bold text-foreground">Démarrage rapide</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div id="coachmark-templates" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {QUICK_TEMPLATES.map((tpl) => (
                 <button key={tpl.id} onClick={() => applyTemplate(tpl)}
                   className="glass-card rounded-lg border p-3 text-left transition-all hover:border-primary/40 hover:shadow-md group">
@@ -304,6 +305,7 @@ const BooleanGenerator = () => {
       </div>
 
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      {step === 0 && <Coachmarks />}
     </div>
   );
 };

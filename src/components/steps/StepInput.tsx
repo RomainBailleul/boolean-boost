@@ -86,7 +86,7 @@ const StepInput: React.FC<StepInputProps> = ({
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* NLP natural language input */}
-      <div className="glass-card rounded-xl p-4 sm:p-5 border-accent/20">
+      <div id="coachmark-nlp" className="glass-card rounded-xl p-4 sm:p-5 border-accent/20">
         <div className="flex items-center gap-2 mb-2">
           <Wand2 className="w-4 h-4 text-accent" />
           <h3 className="text-sm font-bold text-foreground">Recherche intelligente (IA)</h3>
@@ -155,7 +155,7 @@ const StepInput: React.FC<StepInputProps> = ({
       </div>
 
       {/* Mode toggle */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <div id="coachmark-mode" className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
           onClick={() => setMode('free')}
           aria-pressed={mode === 'free'}
