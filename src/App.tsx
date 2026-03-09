@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/admin/AdminRoute";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Templates = lazy(() => import("./pages/Templates"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -32,6 +33,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Suspense fallback={<Spinner />}><Dashboard /></Suspense>} />
+          <Route path="/templates" element={<Suspense fallback={<Spinner />}><Templates /></Suspense>} />
           <Route path="/reset-password" element={<Suspense fallback={<Spinner />}><ResetPassword /></Suspense>} />
 
           {/* Admin routes */}

@@ -164,6 +164,9 @@ const BooleanGenerator = () => {
         <header className="text-center mb-8 sm:mb-12 relative">
           <div className="absolute right-0 top-0 flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild className="h-8 rounded-lg text-xs gap-1.5">
+              <Link to="/templates"><Users className="w-3.5 h-3.5" /><span className="hidden sm:inline">Templates</span></Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild className="h-8 rounded-lg text-xs gap-1.5">
               <Link to="/dashboard"><BarChart3 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Stats</span></Link>
             </Button>
             {user ? (

@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      query_templates: {
+        Row: {
+          categories: string[]
+          created_at: string
+          description: string
+          id: string
+          is_public: boolean
+          platform: string
+          query: string
+          title: string
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          categories?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          is_public?: boolean
+          platform?: string
+          query: string
+          title: string
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          is_public?: boolean
+          platform?: string
+          query?: string
+          title?: string
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
       saved_queries: {
         Row: {
           created_at: string

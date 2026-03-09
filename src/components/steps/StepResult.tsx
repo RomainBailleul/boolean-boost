@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2, Image, FileText } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { ArrowLeft, Copy, Check, RotateCcw, Bookmark, Trash2, Download, AlertTriangle, Globe, Search, Zap, MapPin, Share2, Image, FileText, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSavedQueries } from '@/hooks/useSavedQueries';
 import { type Platform, PLATFORM_LIMITS } from '@/utils/queryGenerator';
@@ -94,6 +95,34 @@ const StepResult: React.FC<StepResultProps> = ({
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState(false);
   const [showFirstCopyMsg, setShowFirstCopyMsg] = useState(false);
+  const [shareTemplateOpen, setShareTemplateOpen] = useState(false);
+  const [templateTitle, setTemplateTitle] = useState('');
+  const [templateDesc, setTemplateDesc] = useState('');
+  const [templatePublishing, setTemplatePublishing] = useState(false);
+
+  const handlePublishTemplate = useCallback(async () => {
+    if (!user || !templateTitle.trim() || !booleanQuery.trim()) return;
+    setTemplatePublishing(true);
+    try {
+      await supabase.from('query_templates' as any).insert({
+        user_id: user.id,
+        title: templateTitle.trim(),
+        description: templateDesc.trim(),
+        query: booleanQuery,
+        categories: [],
+        platform,
+        is_public: true,
+      });
+      toast({ title: 'Template publié !', description: 'Visible par la communauté.' });
+      setShareTemplateOpen(false);
+      setTemplateTitle('');
+      setTemplateDesc('');
+    } catch {
+      toast({ title: 'Erreur', description: 'Impossible de publier le template.', variant: 'destructive' });
+    } finally {
+      setTemplatePublishing(false);
+    }
+  }, [user, templateTitle, templateDesc, booleanQuery, platform, toast]);
 
   const submitFeedback = useCallback(async (rating: string) => {
     setSurveySubmitted(true);
@@ -389,6 +418,7 @@ const StepResult: React.FC<StepResultProps> = ({
         </div>
       </div>
 
+      {/* Save section */}
       <div className="glass-card rounded-xl p-4 sm:p-5">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
           <Bookmark className="w-4 h-4 text-primary" />
@@ -412,7 +442,66 @@ const StepResult: React.FC<StepResultProps> = ({
             {justSaved ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
           </Button>
         </div>
+        {/* Share as community template */}
+        {user && booleanQuery.trim() && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-2 h-7 text-xs text-muted-foreground hover:text-primary"
+            onClick={() => setShareTemplateOpen(true)}
+          >
+            <Users className="w-3 h-3 mr-1" />
+            Partager comme template communautaire
+          </Button>
+        )}
       </div>
+
+      {/* Share as template dialog */}
+      <Dialog open={shareTemplateOpen} onOpenChange={setShareTemplateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              Partager comme template
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-foreground">Titre *</label>
+              <Input
+                value={templateTitle}
+                onChange={e => setTemplateTitle(e.target.value)}
+                placeholder="Ex: Recrutement DevOps France"
+                className="mt-1 h-9 text-sm"
+                maxLength={200}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-foreground">Description</label>
+              <Input
+                value={templateDesc}
+                onChange={e => setTemplateDesc(e.target.value)}
+                placeholder="Décrivez l'usage de cette requête..."
+                className="mt-1 h-9 text-sm"
+                maxLength={500}
+              />
+            </div>
+            <div className="font-mono text-[10px] text-muted-foreground bg-muted/30 rounded-lg p-2 max-h-20 overflow-y-auto break-all">
+              {booleanQuery.slice(0, 300)}{booleanQuery.length > 300 ? '…' : ''}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareTemplateOpen(false)} className="text-xs">Annuler</Button>
+            <Button
+              onClick={handlePublishTemplate}
+              disabled={!templateTitle.trim() || templatePublishing}
+              className="text-xs"
+            >
+              {templatePublishing ? 'Publication…' : 'Publier'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Saved queries */}
       {savedQueries.length > 0 && (
