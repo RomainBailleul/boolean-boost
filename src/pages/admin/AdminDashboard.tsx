@@ -73,6 +73,21 @@ const AdminDashboard: React.FC = () => {
           },
         });
 
+        // Fetch feedback stats
+        const { data: feedbackData } = await supabase
+          .from('feedback_responses' as any)
+          .select('rating');
+
+        const fb: FeedbackStats = { total: 0, perfect: 0, useful: 0, not_useful: 0 };
+        if (feedbackData) {
+          fb.total = feedbackData.length;
+          feedbackData.forEach((r: any) => {
+            if (r.rating === 'perfect') fb.perfect++;
+            else if (r.rating === 'useful') fb.useful++;
+            else if (r.rating === 'not_useful') fb.not_useful++;
+          });
+        }
+
         if (res.ok) {
           const data = await res.json();
           setAdminStats({
@@ -80,9 +95,10 @@ const AdminDashboard: React.FC = () => {
             activeToday: data.activeToday || 0,
             weeklySignups: data.weeklySignups || [],
             loading: false,
+            feedback: fb,
           });
         } else {
-          setAdminStats((prev) => ({ ...prev, loading: false }));
+          setAdminStats((prev) => ({ ...prev, loading: false, feedback: fb }));
         }
       } catch {
         setAdminStats((prev) => ({ ...prev, loading: false }));
