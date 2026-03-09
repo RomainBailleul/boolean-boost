@@ -128,11 +128,49 @@ const AdminDashboard: React.FC = () => {
         <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={stats.mySavedQueries} loading={stats.loading} />
       </motion.div>
 
-      {/* Weekly signups chart */}
+      {/* Daily activity chart */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+        className="mb-4"
+      >
+        <Card className="glass-card border-border/50">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-semibold text-foreground mb-4">
+              Requêtes par jour (30 derniers jours)
+            </h2>
+            {stats.loading ? (
+              <Skeleton className="h-48 w-full" />
+            ) : stats.dailyCounts.length > 0 ? (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={stats.dailyCounts}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                  />
+                  <Bar dataKey="count" name="Requêtes" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">Aucune donnée</p>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Weekly signups chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
       >
         <Card className="glass-card border-border/50">
           <CardContent className="p-5">
@@ -156,7 +194,7 @@ const AdminDashboard: React.FC = () => {
                     }}
                     labelFormatter={(l) => `Semaine du ${l}`}
                   />
-                  <Bar dataKey="count" name="Inscriptions" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" name="Inscriptions" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
