@@ -95,6 +95,34 @@ const StepResult: React.FC<StepResultProps> = ({
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState(false);
   const [showFirstCopyMsg, setShowFirstCopyMsg] = useState(false);
+  const [shareTemplateOpen, setShareTemplateOpen] = useState(false);
+  const [templateTitle, setTemplateTitle] = useState('');
+  const [templateDesc, setTemplateDesc] = useState('');
+  const [templatePublishing, setTemplatePublishing] = useState(false);
+
+  const handlePublishTemplate = useCallback(async () => {
+    if (!user || !templateTitle.trim() || !booleanQuery.trim()) return;
+    setTemplatePublishing(true);
+    try {
+      await supabase.from('query_templates' as any).insert({
+        user_id: user.id,
+        title: templateTitle.trim(),
+        description: templateDesc.trim(),
+        query: booleanQuery,
+        categories: [],
+        platform,
+        is_public: true,
+      });
+      toast({ title: 'Template publié !', description: 'Visible par la communauté.' });
+      setShareTemplateOpen(false);
+      setTemplateTitle('');
+      setTemplateDesc('');
+    } catch {
+      toast({ title: 'Erreur', description: 'Impossible de publier le template.', variant: 'destructive' });
+    } finally {
+      setTemplatePublishing(false);
+    }
+  }, [user, templateTitle, templateDesc, booleanQuery, platform, toast]);
 
   const submitFeedback = useCallback(async (rating: string) => {
     setSurveySubmitted(true);
