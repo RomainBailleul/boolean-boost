@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
-import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe, LogIn } from 'lucide-react';
+import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe, LogIn, Clock, Search, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -14,6 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useUserRole } from '@/hooks/useUserRole';
 import AuthModal from '@/components/AuthModal';
+import { useRecentHistory } from '@/hooks/useRecentHistory';
+
+const MODE_LABELS: Record<string, string> = { free: 'Libre', category: 'Catégorie' };
 
 const COLORS = [
   'hsl(var(--primary))',
@@ -57,6 +60,7 @@ const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole(user);
   const stats = useDashboardStats(user);
+  const { entries: recentHistory, loading: historyLoading } = useRecentHistory(user);
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
@@ -237,6 +241,55 @@ const Dashboard = () => {
                       <div key={p.name} className="flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2.5">
                         <span className="text-sm font-semibold text-foreground">{PLATFORM_LABELS[p.name] || p.name}</span>
                         <span className="text-xs text-muted-foreground bg-background/50 rounded-full px-2 py-0.5">{p.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+
+        {/* Recent history — authenticated users */}
+        {user && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-8">
+            <Card className="glass-card border-border/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  Historique récent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {historyLoading ? (
+                  <div className="space-y-2">
+                    {[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}
+                  </div>
+                ) : recentHistory.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">Aucune requête générée pour le moment.</p>
+                ) : (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                    {recentHistory.map((e) => (
+                      <div key={e.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-background/50 text-xs">
+                        <div className="rounded-lg bg-primary/10 p-1.5 text-primary shrink-0">
+                          {e.platform === 'google-xray' ? <Globe className="w-3.5 h-3.5" /> : e.platform === 'sales-navigator' ? <Zap className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-medium text-foreground">{PLATFORM_LABELS[e.platform] || e.platform}</span>
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-muted-foreground">{MODE_LABELS[e.mode] || e.mode}</span>
+                            {e.categories.length > 0 && (
+                              <>
+                                <span className="text-muted-foreground">·</span>
+                                <span className="text-muted-foreground truncate max-w-[200px] capitalize">{e.categories.join(', ')}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-accent font-medium shrink-0">{e.titles_count} titres</span>
+                        <span className="text-muted-foreground shrink-0">{new Date(e.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</span>
                       </div>
                     ))}
                   </div>
