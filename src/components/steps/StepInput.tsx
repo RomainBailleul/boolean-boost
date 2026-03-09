@@ -155,7 +155,7 @@ const StepInput: React.FC<StepInputProps> = ({
       </div>
 
       {/* Mode toggle */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <div id="coachmark-mode" className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
           onClick={() => setMode('free')}
           aria-pressed={mode === 'free'}

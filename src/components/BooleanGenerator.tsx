@@ -305,6 +305,7 @@ const BooleanGenerator = () => {
       </div>
 
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      {step === 0 && <Coachmarks />}
     </div>
   );
 };
