@@ -54,6 +54,7 @@ const StatCard: React.FC<{
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole(user);
   const stats = useDashboardStats(user);
 
   return (
