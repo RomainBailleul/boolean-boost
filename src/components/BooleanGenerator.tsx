@@ -53,6 +53,12 @@ const BooleanGenerator = () => {
     if (loc) setLocation(loc);
     const p = searchParams.get('p') as Platform | null;
     if (p && ['linkedin', 'sales-navigator', 'google-xray'].includes(p)) setPlatform(p);
+    // Auto-open auth modal if redirected from protected route
+    if (searchParams.get('auth') === 'required') {
+      setAuthOpen(true);
+      searchParams.delete('auth');
+      setSearchParams(searchParams, { replace: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
