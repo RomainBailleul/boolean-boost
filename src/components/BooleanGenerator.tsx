@@ -18,6 +18,7 @@ import { Zap, Rocket, User, LogOut, BarChart3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import Coachmarks from '@/components/Coachmarks';
 
 export type Seniority = '' | 'junior' | 'mid' | 'senior' | 'vp' | 'c-level' | 'director';
 
