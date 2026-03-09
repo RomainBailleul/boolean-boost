@@ -33,6 +33,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Suspense fallback={<Spinner />}><Dashboard /></Suspense>} />
+          <Route path="/templates" element={<Suspense fallback={<Spinner />}><Templates /></Suspense>} />
           <Route path="/reset-password" element={<Suspense fallback={<Spinner />}><ResetPassword /></Suspense>} />
 
           {/* Admin routes */}
