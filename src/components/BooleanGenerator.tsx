@@ -50,6 +50,21 @@ const BooleanGenerator = () => {
   // Ref for copy action in shortcuts
   const copyRef = useRef<(() => void) | null>(null);
 
+  // Freemium usage limit state
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [usageLimit, setUsageLimit] = useState<UsageLimitResult | null>(null);
+
+  const checkAndProceedToResult = useCallback(async () => {
+    const result = await checkUsageLimit();
+    setUsageLimit(result);
+    if (!result.allowed) {
+      setLimitModalOpen(true);
+      return false;
+    }
+    recordUsage();
+    return true;
+  }, []);
+
   // P0-01: Community query count
   const [communityCount, setCommunityCount] = useState<number | null>(null);
   useEffect(() => {
