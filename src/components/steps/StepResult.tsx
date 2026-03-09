@@ -331,6 +331,17 @@ const StepResult: React.FC<StepResultProps> = ({
             </motion.p>
           )}
         </AnimatePresence>
+
+        {/* Export branding footer — hidden normally, shown during PNG/PDF export */}
+        <div
+          ref={brandingRef}
+          style={{ display: 'none' }}
+          className="items-center justify-center gap-1.5 pt-3 mt-3 border-t border-border"
+        >
+          <span className="text-[10px] text-muted-foreground font-medium">
+            Généré avec <span className="text-primary font-bold">Boolean Boost</span> — boolean-boost.lovable.app
+          </span>
+        </div>
       </div>
 
       {/* Export buttons */}
