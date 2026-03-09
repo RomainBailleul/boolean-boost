@@ -281,6 +281,45 @@ const StepResult: React.FC<StepResultProps> = ({
             </Button>
           )}
         </div>
+
+        {/* P0-03: Micro-survey */}
+        <AnimatePresence>
+          {showSurvey && !surveySubmitted && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 p-3 rounded-lg border border-border bg-muted/30"
+            >
+              <p className="text-xs font-medium text-foreground mb-2">Cette requête vous sera utile ?</p>
+              <div className="flex gap-2">
+                {[
+                  { emoji: '😐', label: 'Pas vraiment', value: 'not_useful' },
+                  { emoji: '🙂', label: 'Utile', value: 'useful' },
+                  { emoji: '🤩', label: 'Exactement !', value: 'perfect' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => submitFeedback(opt.value)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-border bg-background hover:border-primary/40 hover:bg-primary/5 transition-all text-xs font-medium min-h-[44px]"
+                  >
+                    <span className="text-base">{opt.emoji}</span>
+                    <span className="hidden sm:inline">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+          {surveySubmitted && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-3 text-xs text-muted-foreground text-center"
+            >
+              Merci pour votre retour ! 🙏
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Export buttons */}

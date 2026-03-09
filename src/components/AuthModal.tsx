@@ -40,7 +40,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        toast({ title: 'Inscription réussie !', description: 'Vérifiez votre email pour confirmer votre compte.' });
+        toast({
+          title: '🎉 Bienvenue sur Boolean Boost !',
+          description: 'Vérifiez votre email pour confirmer. Profitez de : variantes auto FR/EN, multi-plateforme, et sauvegarde cloud illimitée.',
+        });
       }
     } catch (err: any) {
       toast({ title: 'Erreur', description: err.message || 'Une erreur est survenue.', variant: 'destructive' });

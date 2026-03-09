@@ -153,6 +153,46 @@ const AdminDashboard: React.FC = () => {
         <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={stats.mySavedQueries} loading={stats.loading} />
       </motion.div>
 
+      {/* Satisfaction KPI */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="mb-8"
+      >
+        <Card className="glass-card border-border/50">
+          <CardContent className="p-5">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-4">
+              <SmilePlus className="w-4 h-4 text-primary" />
+              Score satisfaction ({adminStats.feedback.total} réponses)
+            </h2>
+            {adminStats.loading ? (
+              <Skeleton className="h-12 w-full" />
+            ) : adminStats.feedback.total > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">🤩</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.perfect}</p>
+                  <p className="text-[10px] text-muted-foreground">Exactement</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">🙂</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.useful}</p>
+                  <p className="text-[10px] text-muted-foreground">Utile</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/30">
+                  <p className="text-2xl">😐</p>
+                  <p className="text-lg font-bold text-foreground">{adminStats.feedback.not_useful}</p>
+                  <p className="text-[10px] text-muted-foreground">Pas vraiment</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">Aucun feedback reçu</p>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Daily activity chart */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
