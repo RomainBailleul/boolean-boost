@@ -43,17 +43,25 @@ const StepResult: React.FC<StepResultProps> = ({
   const { savedQueries, saveQuery, deleteQuery } = useSavedQueries(user);
   const queryCardRef = useRef<HTMLDivElement>(null);
 
+  const brandingRef = useRef<HTMLDivElement>(null);
+
+  const showBranding = () => { if (brandingRef.current) brandingRef.current.style.display = 'flex'; };
+  const hideBranding = () => { if (brandingRef.current) brandingRef.current.style.display = 'none'; };
+
   const exportAsPng = useCallback(async () => {
     if (!queryCardRef.current) return;
     try {
+      showBranding();
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(queryCardRef.current, { backgroundColor: null, scale: 2 });
+      hideBranding();
       const link = document.createElement('a');
       link.download = 'boolean-boost-query.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
       toast({ title: 'PNG exporté !', description: 'Image téléchargée.' });
     } catch {
+      hideBranding();
       toast({ title: 'Erreur', description: "Impossible d'exporter en PNG.", variant: 'destructive' });
     }
   }, [toast]);
@@ -61,15 +69,18 @@ const StepResult: React.FC<StepResultProps> = ({
   const exportAsPdf = useCallback(async () => {
     if (!queryCardRef.current) return;
     try {
+      showBranding();
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
       const canvas = await html2canvas(queryCardRef.current, { backgroundColor: '#ffffff', scale: 2 });
+      hideBranding();
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
       pdf.save('boolean-boost-query.pdf');
       toast({ title: 'PDF exporté !', description: 'Document téléchargé.' });
     } catch {
+      hideBranding();
       toast({ title: 'Erreur', description: "Impossible d'exporter en PDF.", variant: 'destructive' });
     }
   }, [toast]);
@@ -320,6 +331,17 @@ const StepResult: React.FC<StepResultProps> = ({
             </motion.p>
           )}
         </AnimatePresence>
+
+        {/* Export branding footer — hidden normally, shown during PNG/PDF export */}
+        <div
+          ref={brandingRef}
+          style={{ display: 'none' }}
+          className="items-center justify-center gap-1.5 pt-3 mt-3 border-t border-border"
+        >
+          <span className="text-[10px] text-muted-foreground font-medium">
+            Généré avec <span className="text-primary font-bold">Boolean Boost</span> — boolean-boost.lovable.app
+          </span>
+        </div>
       </div>
 
       {/* Export buttons */}
