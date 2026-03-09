@@ -55,6 +55,7 @@ const AdminDashboard: React.FC = () => {
     activeToday: 0,
     weeklySignups: [],
     loading: true,
+    feedback: { total: 0, perfect: 0, useful: 0, not_useful: 0 },
   });
 
   useEffect(() => {
