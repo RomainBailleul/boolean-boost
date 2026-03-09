@@ -79,6 +79,24 @@ const StepResult: React.FC<StepResultProps> = ({
   const isOverLimit = queryLength > limit.limit;
   const isNearLimit = queryLength > limit.limit * 0.85 && !isOverLimit;
 
+  // P0-03: Micro-survey state
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [surveySubmitted, setSurveySubmitted] = useState(false);
+
+  const submitFeedback = useCallback(async (rating: string) => {
+    setSurveySubmitted(true);
+    sessionStorage.setItem('bb-survey-done', '1');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      await supabase.from('feedback_responses' as any).insert({
+        user_id: session?.user?.id ?? null,
+        rating,
+        query_length: booleanQuery.length,
+        platform,
+      });
+    } catch {}
+  }, [booleanQuery, platform]);
+
   const copyToClipboard = useCallback(async (text?: string) => {
     try {
       await navigator.clipboard.writeText(text || booleanQuery);
@@ -86,6 +104,10 @@ const StepResult: React.FC<StepResultProps> = ({
       fireConfetti();
       toast({ title: "Copié !", description: "Requête copiée dans le presse-papier." });
       setTimeout(() => setCopied(false), 2000);
+      // Show survey once per session after copy
+      if (!sessionStorage.getItem('bb-survey-done') && !text) {
+        setTimeout(() => setShowSurvey(true), 1500);
+      }
     } catch {
       toast({ title: "Erreur", description: "Impossible de copier.", variant: "destructive" });
     }
