@@ -84,3 +84,25 @@ Généré le : 2026-03-08 (v3)
 - [x] P2-02 | Tests useSavedQueries cloud (5 tests)
 - [x] P2-03 | Lazy-load Dashboard
 - [x] P2-04 | Fix dépendance user?.id
+
+## Sprint MVP Audit — 2026-03-09
+Score global : 65/100 → 85/100 après P1
+PMF (Shreya) : 26/40 | Growth (Marcus) : 17/35 | UX (Yuki) : 22/25
+
+### 🔴 P0 — Bloquants MVP (3 items, impact +10 pts) ✅
+- [x] P0-01 | Marcus | Social Proof | Compteur requêtes animé sur homepage (edge function query-count)
+- [x] P0-02 | Marcus | Rétention | Welcome toast enrichi post-signup (AuthModal.tsx)
+- [x] P0-03 | Shreya | Feedback | Micro-survey post-copie + table feedback_responses + KPI admin
+
+### 🟠 P1 — PMF & Growth (4 items, impact +10 pts) ✅
+- [x] P1-01 | Yuki | Conversion | Empty state Dashboard avec CTA login (Dashboard.tsx)
+- [x] P1-02 | Marcus | Viralité | Branding footer sur exports PNG/PDF (StepResult.tsx)
+- [x] P1-03 | Shreya | Stickiness | Historique récent 10 dernières requêtes (Dashboard.tsx + useRecentHistory)
+- [x] P1-04 | Marcus | Acquisition | OG image branded 1200×630 + meta tags mis à jour
+
+### 🟡 P2 — Différenciateurs (5 items, impact +8 pts)
+- [ ] P2-01 | Shreya | Community | Templates communautaires
+- [ ] P2-02 | Marcus | Monétisation | Freemium avec limites
+- [ ] P2-03 | Yuki | Onboarding | Coachmarks première visite
+- [ ] P2-04 | Marcus | Rétention | Digest hebdomadaire email
+- [ ] P2-05 | Yuki | Polish | Animation première copie

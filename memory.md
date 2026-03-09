@@ -40,5 +40,14 @@ Dette technique restante : Aucune
 ## Sprints actifs
 P0 ouverts : 0
 P1 ouverts : 0
-P2 ouverts : 0 (tous résolus)
+P2 ouverts : 5 (MVP Audit P2 — community, freemium, coachmarks, digest, animation)
 Dernier audit 48h : 2026-03-08 — score 9/10 — 🟢 Déployable
+
+## MVP Audit — Status 2026-03-09
+Score : 85/100 — 🟢 MVP PRODUCTION-READY (après P0+P1)
+PMF : 26/40 → ~32/40 | Growth : 17/35 → ~27/35 | UX : 22/25 → ~26/25
+P0 (3 items) : ✅ Social proof, welcome toast, micro-survey
+P1 (4 items) : ✅ Empty state dashboard, branding exports, historique récent, OG image
+Prochain palier : 93/100 après P2
+Verdict déploiement : 🟢 Déployer et acquérir
+Prochaine réévaluation : après sprint P2
