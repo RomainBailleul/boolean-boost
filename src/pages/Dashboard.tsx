@@ -12,6 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const COLORS = [
   'hsl(var(--primary))',
