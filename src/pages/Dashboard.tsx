@@ -14,6 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useUserRole } from '@/hooks/useUserRole';
 import AuthModal from '@/components/AuthModal';
+import { useRecentHistory } from '@/hooks/useRecentHistory';
+
+const MODE_LABELS: Record<string, string> = { free: 'Libre', category: 'Catégorie' };
 
 const COLORS = [
   'hsl(var(--primary))',
