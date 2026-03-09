@@ -41,6 +41,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback_responses: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          query_length: number
+          rating: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform?: string
+          query_length?: number
+          rating: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          query_length?: number
+          rating?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       saved_queries: {
         Row: {
           created_at: string
