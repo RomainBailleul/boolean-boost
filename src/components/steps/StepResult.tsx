@@ -116,6 +116,12 @@ const StepResult: React.FC<StepResultProps> = ({
       fireConfetti();
       toast({ title: "Copié !", description: "Requête copiée dans le presse-papier." });
       setTimeout(() => setCopied(false), 2000);
+      // First copy celebration
+      if (!localStorage.getItem('bb-first-copy') && !text) {
+        localStorage.setItem('bb-first-copy', '1');
+        setTimeout(() => setShowFirstCopyMsg(true), 600);
+        setTimeout(() => setShowFirstCopyMsg(false), 6000);
+      }
       // Show survey once per session after copy
       if (!sessionStorage.getItem('bb-survey-done') && !text) {
         setTimeout(() => setShowSurvey(true), 1500);
