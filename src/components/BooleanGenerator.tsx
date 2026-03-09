@@ -14,8 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { trackQueryGenerated } from '@/hooks/useUsageTracking';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
-import { Zap, Rocket, User, LogOut, BarChart3 } from 'lucide-react';
+import { Zap, Rocket, User, LogOut, BarChart3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export type Seniority = '' | 'junior' | 'mid' | 'senior' | 'vp' | 'c-level' | 'director';
