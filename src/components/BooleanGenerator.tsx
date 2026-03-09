@@ -47,6 +47,18 @@ const BooleanGenerator = () => {
   // Ref for copy action in shortcuts
   const copyRef = useRef<(() => void) | null>(null);
 
+  // P0-01: Community query count
+  const [communityCount, setCommunityCount] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('query-count');
+        if (!error && data?.count != null) setCommunityCount(data.count);
+      } catch {}
+    };
+    fetchCount();
+  }, []);
+
   useEffect(() => {
     const q = searchParams.get('q');
     if (q) setStep(2);
