@@ -32,11 +32,19 @@ const StatCard: React.FC<{
   </Card>
 );
 
+interface FeedbackStats {
+  total: number;
+  perfect: number;
+  useful: number;
+  not_useful: number;
+}
+
 interface AdminStats {
   totalUsers: number;
   activeToday: number;
   weeklySignups: Array<{ week: string; count: number }>;
   loading: boolean;
+  feedback: FeedbackStats;
 }
 
 const AdminDashboard: React.FC = () => {
