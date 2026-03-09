@@ -90,75 +90,27 @@ const Dashboard = () => {
           <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={user ? stats.mySavedQueries : '—'} loading={stats.loading || roleLoading} />
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {/* Activity chart */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="glass-card border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  Activité (30 derniers jours)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats.loading ? (
-                  <Skeleton className="h-48 w-full rounded-lg" />
-                ) : (
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={stats.dailyCounts}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} interval="preserveStartEnd" />
-                      <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
-                      <RTooltip
-                        contentStyle={{
-                          background: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          fontSize: 12,
-                          color: 'hsl(var(--foreground))',
-                        }}
-                      />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Requêtes" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Top categories pie */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="glass-card border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-primary" />
-                  Catégories les plus utilisées
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats.loading ? (
-                  <Skeleton className="h-48 w-full rounded-lg" />
-                ) : stats.topCategories.length === 0 ? (
-                  <div className="h-48 flex items-center justify-center text-muted-foreground text-sm">
-                    Aucune donnée encore
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <ResponsiveContainer width="50%" height={200}>
-                      <PieChart>
-                        <Pie
-                          data={stats.topCategories}
-                          dataKey="count"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={70}
-                          innerRadius={35}
-                        >
-                          {stats.topCategories.map((_, i) => (
-                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                          ))}
-                        </Pie>
+        {/* Admin-only charts section */}
+        {isAdmin && (
+          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+            {/* Activity chart */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="glass-card border-border/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-primary" />
+                    Activité (30 derniers jours)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {stats.loading ? (
+                    <Skeleton className="h-48 w-full rounded-lg" />
+                  ) : (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={stats.dailyCounts}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} interval="preserveStartEnd" />
+                        <YAxis tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
                         <RTooltip
                           contentStyle={{
                             background: 'hsl(var(--card))',
@@ -168,23 +120,74 @@ const Dashboard = () => {
                             color: 'hsl(var(--foreground))',
                           }}
                         />
-                      </PieChart>
+                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Requêtes" />
+                      </BarChart>
                     </ResponsiveContainer>
-                    <div className="flex-1 space-y-1.5">
-                      {stats.topCategories.map((cat, i) => (
-                        <div key={cat.name} className="flex items-center gap-2 text-xs">
-                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
-                          <span className="capitalize text-foreground font-medium truncate">{cat.name}</span>
-                          <span className="text-muted-foreground ml-auto">{cat.count}</span>
-                        </div>
-                      ))}
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Top categories pie */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="glass-card border-border/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-primary" />
+                    Catégories les plus utilisées
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {stats.loading ? (
+                    <Skeleton className="h-48 w-full rounded-lg" />
+                  ) : stats.topCategories.length === 0 ? (
+                    <div className="h-48 flex items-center justify-center text-muted-foreground text-sm">
+                      Aucune donnée encore
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <ResponsiveContainer width="50%" height={200}>
+                        <PieChart>
+                          <Pie
+                            data={stats.topCategories}
+                            dataKey="count"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={70}
+                            innerRadius={35}
+                          >
+                            {stats.topCategories.map((_, i) => (
+                              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <RTooltip
+                            contentStyle={{
+                              background: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              fontSize: 12,
+                              color: 'hsl(var(--foreground))',
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="flex-1 space-y-1.5">
+                        {stats.topCategories.map((cat, i) => (
+                          <div key={cat.name} className="flex items-center gap-2 text-xs">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                            <span className="capitalize text-foreground font-medium truncate">{cat.name}</span>
+                            <span className="text-muted-foreground ml-auto">{cat.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
 
         {/* Platforms */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
