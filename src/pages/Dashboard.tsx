@@ -246,6 +246,9 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+          </>
+        )}
+
         <footer className="mt-12 text-center border-t border-border pt-6 pb-4">
           <p className="text-xs text-muted-foreground">
             <Link to="/" className="font-semibold text-primary hover:underline">← Retour au générateur</Link>
