@@ -274,6 +274,26 @@ const StepResult: React.FC<StepResultProps> = ({
           {copied ? 'Copié !' : 'Copier la requête'}
         </Button>
 
+        {/* First copy celebration */}
+        <AnimatePresence>
+          {showFirstCopyMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -5, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="mt-3 p-3 rounded-lg border border-primary/30 bg-primary/5 text-center"
+            >
+              <p className="text-sm font-semibold text-foreground">
+                🎉 Votre première requête Boolean !
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Sauvegardez-la pour la retrouver facilement ↓
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="flex gap-2 mt-3">
           <p className="flex-1 text-[11px] sm:text-xs text-muted-foreground">
             {platform === 'google-xray'
