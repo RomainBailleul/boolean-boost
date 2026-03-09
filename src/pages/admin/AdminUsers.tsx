@@ -162,9 +162,31 @@ const AdminUsers: React.FC = () => {
           <Users className="w-6 h-6 text-primary" />
           <span className="gradient-text">Utilisateurs</span>
         </h1>
-        <span className="text-sm text-muted-foreground">
-          {!loading && `${total} utilisateur${total > 1 ? 's' : ''}`}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">
+            {!loading && `${total} utilisateur${total > 1 ? 's' : ''}`}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={loading || users.length === 0}
+            onClick={() => {
+              downloadCsv(
+                users.map((u) => ({
+                  email: u.email,
+                  rôle: roles[u.id] || 'user',
+                  inscrit_le: formatDate(u.created_at),
+                  dernière_connexion: formatDate(u.last_sign_in_at),
+                })),
+                `utilisateurs-${new Date().toISOString().slice(0, 10)}.csv`,
+              );
+              toast.success('Export CSV téléchargé');
+            }}
+          >
+            <Download className="w-4 h-4 mr-1.5" />
+            Exporter CSV
+          </Button>
+        </div>
       </div>
 
       {/* Search */}

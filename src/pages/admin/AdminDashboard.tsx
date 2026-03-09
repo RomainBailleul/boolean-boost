@@ -37,9 +37,26 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-6">
-        <span className="gradient-text">Dashboard Admin</span>
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-foreground">
+          <span className="gradient-text">Dashboard Admin</span>
+        </h1>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={stats.loading}
+          onClick={() => {
+            downloadCsv(
+              stats.dailyCounts.map((d) => ({ date: d.date, requêtes: d.count })),
+              `activite-${new Date().toISOString().slice(0, 10)}.csv`,
+            );
+            toast.success('Export CSV téléchargé');
+          }}
+        >
+          <Download className="w-4 h-4 mr-1.5" />
+          Exporter CSV
+        </Button>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
