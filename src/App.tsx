@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
+import ProtectedRoute from "./components/ProtectedRoute";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 import NotFound from "./pages/NotFound";
 
