@@ -327,6 +327,14 @@ const BooleanGenerator = () => {
       </div>
 
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      <UsageLimitModal
+        open={limitModalOpen}
+        onOpenChange={setLimitModalOpen}
+        isAuthenticated={!!user}
+        remaining={usageLimit?.remaining ?? 0}
+        limit={usageLimit?.limit ?? 5}
+        onLogin={() => { setLimitModalOpen(false); setAuthOpen(true); }}
+      />
       {step === 0 && <Coachmarks />}
     </div>
   );
