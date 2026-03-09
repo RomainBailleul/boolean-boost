@@ -189,33 +189,35 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Platforms */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <Card className="glass-card border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Globe className="w-4 h-4 text-primary" />
-                Plateformes utilisées
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats.loading ? (
-                <Skeleton className="h-12 w-full rounded-lg" />
-              ) : stats.topPlatforms.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Aucune donnée encore</p>
-              ) : (
-                <div className="flex flex-wrap gap-3">
-                  {stats.topPlatforms.map((p) => (
-                    <div key={p.name} className="flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2.5">
-                      <span className="text-sm font-semibold text-foreground">{PLATFORM_LABELS[p.name] || p.name}</span>
-                      <span className="text-xs text-muted-foreground bg-background/50 rounded-full px-2 py-0.5">{p.count}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* Admin-only Platforms section */}
+        {isAdmin && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="glass-card border-border/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-primary" />
+                  Plateformes utilisées
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {stats.loading ? (
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                ) : stats.topPlatforms.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">Aucune donnée encore</p>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    {stats.topPlatforms.map((p) => (
+                      <div key={p.name} className="flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2.5">
+                        <span className="text-sm font-semibold text-foreground">{PLATFORM_LABELS[p.name] || p.name}</span>
+                        <span className="text-xs text-muted-foreground bg-background/50 rounded-full px-2 py-0.5">{p.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         <footer className="mt-12 text-center border-t border-border pt-6 pb-4">
           <p className="text-xs text-muted-foreground">
