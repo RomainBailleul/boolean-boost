@@ -8,11 +8,13 @@ import StepSelect from '@/components/steps/StepSelect';
 import StepResult from '@/components/steps/StepResult';
 import ThemeToggle from '@/components/ThemeToggle';
 import AuthModal from '@/components/AuthModal';
+import UsageLimitModal from '@/components/UsageLimitModal';
 import { generateBooleanQuery, type Platform } from '@/utils/queryGenerator';
 import { QUICK_TEMPLATES, type QuickTemplate } from '@/data/quickTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { trackQueryGenerated } from '@/hooks/useUsageTracking';
+import { checkUsageLimit, recordUsage, type UsageLimitResult } from '@/hooks/useUsageLimit';
 import enhancedJobTitlesData from '@/data/enhancedJobTitles.json';
 import { Zap, Rocket, User, LogOut, BarChart3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,6 +49,21 @@ const BooleanGenerator = () => {
 
   // Ref for copy action in shortcuts
   const copyRef = useRef<(() => void) | null>(null);
+
+  // Freemium usage limit state
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [usageLimit, setUsageLimit] = useState<UsageLimitResult | null>(null);
+
+  const checkAndProceedToResult = useCallback(async () => {
+    const result = await checkUsageLimit();
+    setUsageLimit(result);
+    if (!result.allowed) {
+      setLimitModalOpen(true);
+      return false;
+    }
+    recordUsage();
+    return true;
+  }, []);
 
   // P0-01: Community query count
   const [communityCount, setCommunityCount] = useState<number | null>(null);
@@ -269,7 +286,9 @@ const BooleanGenerator = () => {
                   skills={skills} setSkills={setSkills}
                   seniority={seniority} setSeniority={setSeniority}
                   platform={platform} location={location}
-                  onNext={() => {
+                  onNext={async () => {
+                    const allowed = await checkAndProceedToResult();
+                    if (!allowed) return;
                     setStep(2);
                     trackQueryGenerated({
                       categories: selectedCategories,
@@ -308,6 +327,14 @@ const BooleanGenerator = () => {
       </div>
 
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      <UsageLimitModal
+        open={limitModalOpen}
+        onOpenChange={setLimitModalOpen}
+        isAuthenticated={!!user}
+        remaining={usageLimit?.remaining ?? 0}
+        limit={usageLimit?.limit ?? 5}
+        onLogin={() => { setLimitModalOpen(false); setAuthOpen(true); }}
+      />
       {step === 0 && <Coachmarks />}
     </div>
   );
