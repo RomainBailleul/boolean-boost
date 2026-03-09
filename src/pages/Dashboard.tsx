@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
-import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe, LogIn } from 'lucide-react';
+import { ArrowLeft, BarChart3, Users, Bookmark, Layers, Globe, LogIn, Clock, Search, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ThemeToggle';
