@@ -93,6 +93,7 @@ const StepResult: React.FC<StepResultProps> = ({
   // P0-03: Micro-survey state
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState(false);
+  const [showFirstCopyMsg, setShowFirstCopyMsg] = useState(false);
 
   const submitFeedback = useCallback(async (rating: string) => {
     setSurveySubmitted(true);
