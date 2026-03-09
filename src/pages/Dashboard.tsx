@@ -78,12 +78,16 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8"
+          className={`grid ${isAdmin ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2'} gap-3 sm:gap-4 mb-8`}
         >
-          <StatCard icon={<BarChart3 className="w-5 h-5" />} label="Requêtes générées" value={stats.totalQueries} loading={stats.loading} />
-          <StatCard icon={<Users className="w-5 h-5" />} label="Titres utilisés" value={stats.totalTitles.toLocaleString()} loading={stats.loading} />
-          <StatCard icon={<Layers className="w-5 h-5" />} label="Mes requêtes" value={user ? stats.myQueries : '—'} loading={stats.loading} />
-          <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={user ? stats.mySavedQueries : '—'} loading={stats.loading} />
+          {isAdmin && (
+            <>
+              <StatCard icon={<BarChart3 className="w-5 h-5" />} label="Requêtes générées" value={stats.totalQueries} loading={stats.loading || roleLoading} />
+              <StatCard icon={<Users className="w-5 h-5" />} label="Titres utilisés" value={stats.totalTitles.toLocaleString()} loading={stats.loading || roleLoading} />
+            </>
+          )}
+          <StatCard icon={<Layers className="w-5 h-5" />} label="Mes requêtes" value={user ? stats.myQueries : '—'} loading={stats.loading || roleLoading} />
+          <StatCard icon={<Bookmark className="w-5 h-5" />} label="Mes sauvegardes" value={user ? stats.mySavedQueries : '—'} loading={stats.loading || roleLoading} />
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
